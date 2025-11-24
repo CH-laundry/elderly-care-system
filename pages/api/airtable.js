@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
   const BASE_ID = process.env.AIRTABLE_BASE_ID;
-  const MEMBERS_TABLE_ID = process.env.MEMBERS_TABLE_ID || 'tblUG6fc6DYXov4A';
+  const MEMBERS_TABLE_ID = process.env.MEMBERS_TABLE_ID || 'tbluG6fc6DYXov4AJ';
   
   const { action } = req.query;
   
