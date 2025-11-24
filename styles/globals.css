@@ -2,164 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html,
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #fef3f4 0%, #ffe8ec 50%, #fff0f3 100%);
-  min-height: 100vh;
-}
-
-/* 粉色主題變數 */
+/* 讓整站預設走淺色、粉色溫馨風格 */
 :root {
-  --color-primary: #f472b6;
-  --color-primary-light: #fce7f3;
-  --color-primary-dark: #ec4899;
-  --color-secondary: #fb923c;
-  --color-bg: #fef3f4;
-  --color-card: #ffffff;
-  --shadow-soft: 0 10px 30px rgba(244, 114, 182, 0.1);
-  --shadow-medium: 0 20px 50px rgba(244, 114, 182, 0.15);
-}
-
-/* 防止縮放 */
-input,
-textarea,
-select {
-  font-size: 16px !important;
-  -webkit-user-select: text;
-  user-select: text;
-}
-
-/* 修正手機輸入問題 */
-input[type="tel"],
-input[type="text"],
-input[type="number"] {
-  -webkit-appearance: none;
-  appearance: none;
-  touch-action: manipulation;
-}
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* 日期選擇器樣式 */
-input[type="date"] {
   color-scheme: light;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  border-radius: 4px;
-  padding: 4px;
+/* 全站背景 + 文字設定 */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #fff5f8, #ffeef4);
+  color: #333333;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang TC", "Microsoft JhengHei", sans-serif;
 }
 
-/* 自定義捲軸 */
-::-webkit-scrollbar {
+/* 預設連結樣式（配合粉色系） */
+a {
+  color: #ec4899; /* tailwind 的 pink-500 */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 按鈕基礎樣式加一點圓角＆過渡感，Tailwind 還是優先 */
+button {
+  font-family: inherit;
+}
+
+/* 表單元素基本樣式，保守加強一點易讀性 */
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* 讓滾動條不要太醜（桌機上會看到） */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #f9a8d4 #ffe4ef; /* 粉色系 */
+}
+
+*::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
-  background: #fce7f3;
-  border-radius: 10px;
+*::-webkit-scrollbar-track {
+  background: #ffe4ef;
 }
 
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #f472b6, #fb923c);
-  border-radius: 10px;
+*::-webkit-scrollbar-thumb {
+  background-color: #f9a8d4;
+  border-radius: 9999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #ec4899, #f97316);
+/* 讓卡片類容器看起來比較有質感（如果沒用 Tailwind class 時也有一點效果） */
+.card-soft {
+  background-color: rgba(255, 255, 255, 0.92);
+  border-radius: 1.5rem;
+  box-shadow: 0 18px 40px rgba(244, 114, 182, 0.18);
+  border: 1px solid rgba(248, 187, 208, 0.6);
 }
 
-/* 動畫 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 大按鈕樣式（你要時可以在 className 加上 basic-big-btn 使用） */
+.basic-big-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border-radius: 9999px;
+  border: none;
+  background: linear-gradient(135deg, #f472b6, #ec4899);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(236, 72, 153, 0.35);
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out,
+    filter 0.08s ease-out;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
+.basic-big-btn:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(236, 72, 153, 0.45);
 }
 
-/* 按鈕點擊效果 */
-button:active {
-  transform: scale(0.97);
+.basic-big-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(236, 72, 153, 0.32);
 }
 
-/* 卡片懸停效果 */
-.card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-medium);
-}
-
-/* Loading 動畫 */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-/* 焦點樣式 */
-*:focus-visible {
-  outline: 3px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: 12px;
-}
-
-/* 選取文字樣式 */
-::selection {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
-}
-
-/* 禁用狀態 */
-button:disabled,
-input:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* 移除 iOS Safari 的預設樣式 */
-input,
-textarea,
-button {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  border-radius: 0;
-}
-
-/* 確保在所有裝置上輸入框都能正常工作 */
-@supports (-webkit-touch-callout: none) {
-  input[type="tel"] {
-    font-size: 16px;
-    padding: 16px;
-  }
+/* 小提示標籤（可搭配在標題附近） */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border-radius: 9999px;
+  background-color: #fdf2f8;
+  color: #9d174d;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
