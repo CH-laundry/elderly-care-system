@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員登入 - 樂老安心照護預約系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #1e3c72;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .helper-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #1e3c72;
+        }
+
+        .register-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>會員登入</h1>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">會員帳號</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    required
+                    placeholder="請輸入帳號"
+                    autocomplete="username"
+                >
+                <div class="helper-text">支援英文、數字、中文 (管理者請輸入: admin)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密碼</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required
+                    placeholder="請輸入密碼"
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <div class="btn-container">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">返回首頁</button>
+                <button type="submit" class="btn btn-primary">登入</button>
+            </div>
+        </form>
+
+        <div class="register-link">
+            還沒有帳號? <a href="/register">立即註冊</a>
+        </div>
+    </div>
+
+    <script>
+        // Airtable 設定
+        const AIRTABLE_API_KEY = 'patZKmobXmXcHRdhI.1c9a7a29dc7c23db47e9aa00a79c9f6ce94c8fee6e4c6b04f2caf0ae9d5a6e35';
+        const AIRTABLE_BASE_ID = 'app96pnNu6eu5zYtrn';
+        const MEMBERS_TABLE = '會員資料';
+
+        // 管理者帳號設定
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin123'; // 建議您之後修改此密碼
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                errorDiv.textContent = '請輸入帳號和密碼';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                // 檢查是否為管理者登入
+                if (username === ADMIN_USERNAME) {
+                    if (password === ADMIN_PASSWORD) {
+                        // 管理者登入成功
+                        localStorage.setItem('userRole', 'admin');
+                        localStorage.setItem('username', username);
+                        
+                        successDiv.innerHTML = '<strong>✅ 管理者登入成功!</strong><br>即將跳轉到管理後台...';
+                        successDiv.style.display = 'block';
+                        
+                        setTimeout(() => {
+                            window.location.href = '/admin';
+                        }, 1500);
+                        return;
+                    } else {
+                        errorDiv.textContent = '管理者密碼錯誤';
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
+                }
+
+                // 一般會員登入 - 從 Airtable 驗證
+                const checkUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${MEMBERS_TABLE}?filterByFormula=AND({帳號}='${username}',{密碼}='${password}')`;
+                
+                const response = await fetch(checkUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.records && data.records.length > 0) {
+                    const member = data.records[0];
+                    
+                    // 檢查會員狀態
+                    if (member.fields['會員狀態'] === '停用') {
+                        errorDiv.textContent = '此帳號已被停用,請聯繫管理員';
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
+
+                    // 登入成功,儲存會員資訊
+                    localStorage.setItem('memberId', member.id);
+                    localStorage.setItem('memberName', member.fields['姓名']);
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('userRole', 'member');
+                    
+                    successDiv.innerHTML = `<strong>✅ 登入成功!</strong><br>歡迎回來,${member.fields['姓名']}!<br>即將跳轉...`;
+                    successDiv.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    errorDiv.textContent = '帳號或密碼錯誤';
+                    errorDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('登入錯誤:', error);
+                errorDiv.textContent = '登入過程發生錯誤,請稍後再試';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
