@@ -10,10 +10,41 @@
 
 html,
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #fef3f4 0%, #ffe8ec 50%, #fff0f3 100%);
+  min-height: 100vh;
+}
+
+/* 粉色主題變數 */
+:root {
+  --color-primary: #f472b6;
+  --color-primary-light: #fce7f3;
+  --color-primary-dark: #ec4899;
+  --color-secondary: #fb923c;
+  --color-bg: #fef3f4;
+  --color-card: #ffffff;
+  --shadow-soft: 0 10px 30px rgba(244, 114, 182, 0.1);
+  --shadow-medium: 0 20px 50px rgba(244, 114, 182, 0.15);
+}
+
+/* 防止縮放 */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* 修正手機輸入問題 */
+input[type="tel"],
+input[type="text"],
+input[type="number"] {
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -22,6 +53,113 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
+/* 日期選擇器樣式 */
+input[type="date"] {
+  color-scheme: light;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* 自定義捲軸 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fce7f3;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #f472b6, #fb923c);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ec4899, #f97316);
+}
+
+/* 動畫 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* 按鈕點擊效果 */
+button:active {
+  transform: scale(0.97);
+}
+
+/* 卡片懸停效果 */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Loading 動畫 */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* 焦點樣式 */
+*:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+/* 選取文字樣式 */
+::selection {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+/* 禁用狀態 */
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 移除 iOS Safari 的預設樣式 */
+input,
+textarea,
+button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+/* 確保在所有裝置上輸入框都能正常工作 */
+@supports (-webkit-touch-callout: none) {
+  input[type="tel"] {
+    font-size: 16px;
+    padding: 16px;
+  }
 }
