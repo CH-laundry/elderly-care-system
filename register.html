@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員註冊 - 樂老安心照護預約系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #1e3c72;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        input[type="tel"] {
+            font-size: 1.3em;
+            letter-spacing: 2px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .helper-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .info-box p {
+            color: #2e7d32;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+
+        .info-box ul {
+            color: #2e7d32;
+            font-size: 0.9em;
+            margin-left: 20px;
+        }
+
+        .info-box ul li {
+            margin-bottom: 5px;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .register-container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>會員註冊</h1>
+
+        <div class="info-box">
+            <p><strong>🎯 溫馨提示:</strong></p>
+            <ul>
+                <li>請輸入真實資料,方便後續服務聯繫</li>
+                <li>帳號可使用英文、數字或中文</li>
+                <li>手機號碼將用於服務通知</li>
+            </ul>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="username">
+                    會員帳號 <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    required
+                    placeholder="請輸入帳號 (英文、數字、中文皆可)"
+                    autocomplete="username"
+                >
+                <div class="helper-text">可使用英文字母、數字或中文,例如: admin、會員001、小林</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    密碼 <span class="required">*</span>
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required
+                    placeholder="請設定密碼"
+                    minlength="6"
+                    autocomplete="new-password"
+                >
+                <div class="helper-text">至少6個字元</div>
+            </div>
+
+            <div class="form-group">
+                <label for="name">
+                    姓名 <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required
+                    placeholder="請輸入長輩或主要聯絡人姓名"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="phone">
+                    手機 <span class="required">*</span>
+                </label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    required
+                    placeholder="請輸入手機號碼"
+                    pattern="[0-9]{10}"
+                    maxlength="10"
+                >
+                <div class="helper-text">系統已為可自動移除非數字字元</div>
+            </div>
+
+            <div class="form-group">
+                <label for="serviceType">服務需求 <span class="required">*</span></label>
+                <select id="serviceType" name="serviceType" required>
+                    <option value="">請選擇</option>
+                    <option value="訪視常規長照且一般狀">訪視常規長照且一般狀</option>
+                    <option value="各道醫療院與相關">各道醫療院與相關</option>
+                    <option value="外出採買與辦理事務">外出採買與辦理事務</option>
+                    <option value="陪伴聊天與居家協助">陪伴聊天與居家協助</option>
+                    <option value="其他需求">其他需求</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">備註說明</label>
+                <textarea 
+                    id="notes" 
+                    name="notes" 
+                    placeholder="如有特殊需求或說明事項,請在此填寫"
+                ></textarea>
+            </div>
+
+            <div class="btn-container">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">返回首頁</button>
+                <button type="submit" class="btn btn-primary">送出預約資料</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Airtable 設定
+        const AIRTABLE_API_KEY = 'patZKmobXmXcHRdhI.1c9a7a29dc7c23db47e9aa00a79c9f6ce94c8fee6e4c6b04f2caf0ae9d5a6e35';
+        const AIRTABLE_BASE_ID = 'app96pnNu6eu5zYtrn';
+        const MEMBERS_TABLE = '會員資料';
+        const TRANSACTIONS_TABLE = '消費紀錄';
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            // 取得表單資料
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.replace(/\D/g, ''); // 移除非數字字元
+            const serviceType = document.getElementById('serviceType').value;
+            const notes = document.getElementById('notes').value.trim();
+
+            // 驗證必填欄位
+            if (!username || !password || !name || !phone || !serviceType) {
+                errorDiv.textContent = '請填寫所有必填欄位';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // 驗證手機號碼格式
+            if (phone.length !== 10) {
+                errorDiv.textContent = '手機號碼格式錯誤,請輸入10碼數字';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // 驗證密碼長度
+            if (password.length < 6) {
+                errorDiv.textContent = '密碼至少需要6個字元';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                // 檢查帳號是否已存在
+                const checkUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${MEMBERS_TABLE}?filterByFormula={帳號}='${username}'`;
+                const checkResponse = await fetch(checkUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`
+                    }
+                });
+
+                const checkData = await checkResponse.json();
+                if (checkData.records && checkData.records.length > 0) {
+                    errorDiv.textContent = '此帳號已被使用,請選擇其他帳號';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                // 建立會員資料
+                const memberData = {
+                    fields: {
+                        '帳號': username,
+                        '密碼': password,
+                        '姓名': name,
+                        '電話': phone,
+                        '註冊日期': new Date().toISOString(),
+                        '會員狀態': '正常'
+                    }
+                };
+
+                const memberResponse = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${MEMBERS_TABLE}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(memberData)
+                });
+
+                if (!memberResponse.ok) {
+                    throw new Error('註冊失敗,請稍後再試');
+                }
+
+                const memberResult = await memberResponse.json();
+                const memberId = memberResult.id;
+
+                // 建立初始服務需求記錄
+                const transactionData = {
+                    fields: {
+                        '會員編號': [memberId],
+                        '服務類型': serviceType,
+                        '備註': notes || '初次註冊',
+                        '日期': new Date().toISOString().split('T')[0],
+                        '狀態': '待確認'
+                    }
+                };
+
+                await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${TRANSACTIONS_TABLE}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(transactionData)
+                });
+
+                // 顯示成功訊息
+                successDiv.innerHTML = `
+                    <strong>✅ 註冊成功!</strong><br>
+                    您的帳號: ${username}<br>
+                    我們將盡快與您聯繫確認服務時間。<br>
+                    3秒後自動跳轉到登入頁面...
+                `;
+                successDiv.style.display = 'block';
+
+                // 3秒後跳轉到登入頁面
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 3000);
+
+            } catch (error) {
+                console.error('註冊錯誤:', error);
+                errorDiv.textContent = '註冊過程發生錯誤: ' + error.message;
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        // 手機號碼自動格式化
+        document.getElementById('phone').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').substring(0, 10);
+        });
+    </script>
+</body>
+</html>
