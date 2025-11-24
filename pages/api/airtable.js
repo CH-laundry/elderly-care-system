@@ -1,167 +1,239 @@
+// pages/api/airtable.js
+
 export default async function handler(req, res) {
   const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
   const BASE_ID = process.env.AIRTABLE_BASE_ID;
-  const MEMBERS_TABLE_ID = process.env.MEMBERS_TABLE_ID || 'tbluG6fc6DYXov4AJ';
-  
+  const MEMBERS_TABLE_ID = process.env.MEMBERS_TABLE_ID;
+  const BOOKINGS_TABLE_ID = process.env.BOOKINGS_TABLE_ID; // 新增：預約紀錄表
+
+  const { method } = req;
   const { action } = req.query;
-  
-  // CORS headers
+
+  // 基本檢查
+  if (!AIRTABLE_API_KEY || !BASE_ID || !MEMBERS_TABLE_ID) {
+    return res.status(500).json({
+      error: '缺少 Airtable 設定，請確認環境變數 AIRTABLE_API_KEY / AIRTABLE_BASE_ID / MEMBERS_TABLE_ID',
+    });
+  }
+
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  if (req.method === 'OPTIONS') {
+
+  if (method === 'OPTIONS') {
     return res.status(200).end();
   }
 
+  const baseUrl = `https://api.airtable.com/v0/${BASE_ID}`;
+
+  const airtableFetch = async (path, options = {}) => {
+    const response = await fetch(`${baseUrl}/${path}`, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+      },
+    });
+
+    const text = await response.text();
+    let json;
+    try {
+      json = text ? JSON.parse(text) : {};
+    } catch (e) {
+      throw new Error(`Airtable 回應解析失敗: ${text}`);
+    }
+
+    if (!response.ok) {
+      const msg = json?.error?.message || response.statusText;
+      throw new Error(`Airtable API 錯誤: ${msg}`);
+    }
+
+    return json;
+  };
+
+  const mapMember = (record) => {
+    const f = record.fields || {};
+    return {
+      id: record.id,
+      name: f['姓名'] || f['Name'] || '',
+      phone: f['手機'] || f['Phone'] || '',
+      points: f['服務點數'] ?? f['Points'] ?? 0,
+      balance: f['儲值金'] ?? f['Balance'] ?? 0,
+    };
+  };
+
   try {
-    // 載入系統設定
-    if (action === 'getSettings') {
-      const response = await fetch(
-        `https://api.airtable.com/v0/${BASE_ID}/系統設定`,
-        {
-          headers: {
-            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
-          }
-        }
-      );
-      
-      const data = await response.json();
-      
-      const settings = {
-        brandName: '享老生活',
-        systemTitle: '會員服務系統',
-        staffTitle: '陪伴員',
-        companions: [],
-        services: []
-      };
-      
-      if (data.records) {
-        data.records.forEach(record => {
-          const key = record.fields['設定名稱'];
-          const value = record.fields['設定值'];
-          
-          if (key === '品牌名稱') settings.brandName = value;
-          else if (key === '系統標題') settings.systemTitle = value;
-          else if (key === '服務人員稱呼') settings.staffTitle = value;
-          else if (key && key.startsWith('陪伴員-')) settings.companions.push(value);
-          else if (key && key.startsWith('服務-')) settings.services.push(value);
-        });
-      }
-      
-      return res.status(200).json({ settings });
-    }
-    
-    // 登入
-    if (action === 'login' && req.method === 'POST') {
-      const { phone } = req.body;
-      
-      const response = await fetch(
-        `https://api.airtable.com/v0/${BASE_ID}/${MEMBERS_TABLE_ID}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${AIRTABLE_API_KEY}`
-          }
-        }
-      );
-      
-      const data = await response.json();
-      
-      if (!data.records || data.records.length === 0) {
-        return res.status(404).json({ 
-          success: false, 
-          error: '資料庫中沒有會員資料' 
-        });
-      }
-      
-      // 找到符合電話的會員
-      const memberRecord = data.records.find(record => {
-        const fields = record.fields;
-        const firstFieldValue = Object.values(fields)[0];
-        if (!firstFieldValue) return false;
-        
-        const cleanPhone = String(firstFieldValue).replace(/[\s\(\)\-:]/g, '');
-        const inputClean = phone.replace(/[\s\(\)\-:]/g, '');
-        
-        return cleanPhone === inputClean;
+    // 1) 取得系統設定（暫時用固定值，你之後要從 Airtable 調整再升級）
+    if (action === 'getSettings' && method === 'GET') {
+      return res.status(200).json({
+        settings: {
+          brandName: '享老生活',
+          systemTitle: '陪伴服務系統',
+          staffTitle: '陪伴員',
+          companions: ['小美陪伴員', '阿明陪伴員', '志工佩佩'],
+          services: ['陪同就醫', '聊天陪伴', '散步運動', '家務協助'],
+        },
       });
-      
-      if (memberRecord) {
-        const fields = memberRecord.fields;
-        const allFields = Object.entries(fields);
-        
-        const name = allFields.find(([key]) => 
-          key.includes('姓名') || key.includes('name') || key.includes('Name')
-        )?.[1] || allFields[2]?.[1] || '會員';
-        
-        const points = allFields.find(([key]) => 
-          key.includes('點數') || key.includes('point')
-        )?.[1] || 0;
-        
-        const balance = allFields.find(([key]) => 
-          key.includes('儲值') || key.includes('balance')
-        )?.[1] || 0;
-        
-        const cleanBalance = typeof balance === 'string' ? 
-          parseInt(balance.replace(/[^\d]/g, '')) || 0 : balance;
-        
-        return res.status(200).json({
-          success: true,
-          user: {
-            id: memberRecord.id,
-            phone: phone,
-            name: String(name),
-            points: typeof points === 'number' ? points : parseInt(points) || 0,
-            balance: cleanBalance
-          }
-        });
-      } else {
-        return res.status(404).json({ 
-          success: false, 
-          error: `找不到電話 ${phone} 的會員資料` 
-        });
-      }
     }
-    
-    // 建立預約
-    if (action === 'createBooking' && req.method === 'POST') {
-      const { userId, companion, services, date, time } = req.body;
-      
-      const response = await fetch(
-        `https://api.airtable.com/v0/${BASE_ID}/預約記錄`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            fields: {
-              '會員電話': [userId],
-              '預約日期': date,
-              '服務時間': time,
-              '服務項目': services.join(', '),
-              '陪伴員': companion,
-              '預約狀態': '已預約'
-            }
-          })
-        }
+
+    // 2) 會員登入（手機）
+    if (action === 'login' && method === 'POST') {
+      const { phone } = req.body || {};
+      if (!phone) {
+        return res.status(400).json({ success: false, error: '缺少手機號碼' });
+      }
+
+      const filter = encodeURIComponent(`{手機}='${phone}'`);
+      const data = await airtableFetch(
+        `${MEMBERS_TABLE_ID}?filterByFormula=${filter}&maxRecords=1`
       );
-      
-      if (response.ok) {
-        return res.status(200).json({ success: true });
-      } else {
-        const error = await response.json();
-        return res.status(500).json({ success: false, error: error.error });
+
+      if (!data.records || data.records.length === 0) {
+        return res.status(200).json({
+          success: false,
+          error: '查無此會員，請先註冊或洽櫃台',
+        });
       }
+
+      const user = mapMember(data.records[0]);
+      return res.status(200).json({ success: true, user });
     }
-    
+
+    // 3) 會員註冊
+    if (action === 'register' && method === 'POST') {
+      const { name, phone } = req.body || {};
+      if (!name || !phone) {
+        return res.status(400).json({ success: false, error: '姓名與手機必填' });
+      }
+
+      // 檢查是否已存在
+      const filter = encodeURIComponent(`{手機}='${phone}'`);
+      const existing = await airtableFetch(
+        `${MEMBERS_TABLE_ID}?filterByFormula=${filter}&maxRecords=1`
+      );
+
+      if (existing.records && existing.records.length > 0) {
+        return res.status(200).json({
+          success: false,
+          error: '此手機已註冊，請直接登入',
+        });
+      }
+
+      const createRes = await airtableFetch(MEMBERS_TABLE_ID, {
+        method: 'POST',
+        body: JSON.stringify({
+          records: [
+            {
+              fields: {
+                姓名: name,
+                手機: phone,
+                服務點數: 0,
+                儲值金: 0,
+              },
+            },
+          ],
+        }),
+      });
+
+      const user = mapMember(createRes.records[0]);
+      return res.status(200).json({ success: true, user });
+    }
+
+    // 4) 建立預約
+    if (action === 'createBooking' && method === 'POST') {
+      if (!BOOKINGS_TABLE_ID) {
+        return res.status(500).json({
+          success: false,
+          error: '尚未設定 BOOKINGS_TABLE_ID，請到 Vercel 新增預約紀錄表的 Table ID',
+        });
+      }
+
+      const {
+        userId,
+        userName,
+        userPhone,
+        companion,
+        services,
+        date,
+        time,
+      } = req.body || {};
+
+      if (!userId || !companion || !services || !date || !time) {
+        return res.status(400).json({
+          success: false,
+          error: '預約欄位不足，請確認陪伴員 / 服務 / 日期 / 時間',
+        });
+      }
+
+      const fields = {
+        會員ID: userId,
+        姓名: userName || '',
+        手機: userPhone || '',
+        陪伴員: companion,
+        服務項目: Array.isArray(services) ? services.join('、') : services,
+        日期: date,
+        時間: time,
+        狀態: '待確認',
+      };
+
+      const createRes = await airtableFetch(BOOKINGS_TABLE_ID, {
+        method: 'POST',
+        body: JSON.stringify({
+          records: [{ fields }],
+        }),
+      });
+
+      const record = createRes.records[0];
+
+      return res.status(200).json({
+        success: true,
+        bookingId: record.id,
+      });
+    }
+
+    // 5) 取得會員的預約紀錄
+    if (action === 'listBookings' && method === 'GET') {
+      if (!BOOKINGS_TABLE_ID) {
+        return res.status(500).json({
+          success: false,
+          error: '尚未設定 BOOKINGS_TABLE_ID，請到 Vercel 新增預約紀錄表的 Table ID',
+        });
+      }
+
+      const { userId } = req.query;
+      if (!userId) {
+        return res.status(400).json({ success: false, error: '缺少 userId' });
+      }
+
+      const filter = encodeURIComponent(`{會員ID}='${userId}'`);
+      const data = await airtableFetch(
+        `${BOOKINGS_TABLE_ID}?filterByFormula=${filter}&sort[0][field]=日期&sort[0][direction]=asc`
+      );
+
+      const bookings =
+        data.records?.map((r) => {
+          const f = r.fields || {};
+          return {
+            id: r.id,
+            date: f['日期'] || '',
+            time: f['時間'] || '',
+            companion: f['陪伴員'] || '',
+            services: f['服務項目'] || '',
+            status: f['狀態'] || '',
+          };
+        }) || [];
+
+      return res.status(200).json({ success: true, bookings });
+    }
+
     return res.status(400).json({ error: 'Invalid action' });
-    
   } catch (error) {
     console.error('API Error:', error);
-    return res.status(500).json({ 
-      error: error.message || 'Server error' 
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Server error',
     });
   }
 }
