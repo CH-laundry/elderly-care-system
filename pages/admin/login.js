@@ -12,13 +12,22 @@ export default function AdminLoginPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+
+    const u = username.trim();
+    const p = password.trim();
+
+    if (!u || !p) {
+      setError("請輸入帳號與密碼");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const resp = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: u, password: p }),
       });
 
       const data = await resp.json();
@@ -29,8 +38,8 @@ export default function AdminLoginPage() {
         if (typeof window !== "undefined") {
           localStorage.setItem("adminLoggedIn", "1");
         }
-         // ✅ 改成導到管理者後台
-          router.push('/admin/dashboard');
+        // ✅ 導到管理者後台（我們下一段會建立這個頁面）
+        router.push("/admin/dashboard");
       }
     } catch (err) {
       console.error(err);
