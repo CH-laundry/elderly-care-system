@@ -13,19 +13,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 從 Airtable 查詢會員
     const member = await getMemberByPhone(phone);
 
     if (!member) {
       return res.status(401).json({ error: '手機號碼或密碼錯誤' });
     }
 
-    // 驗證密碼
     if (member.Password !== password) {
       return res.status(401).json({ error: '手機號碼或密碼錯誤' });
     }
 
-    // 登入成功
     return res.status(200).json({
       success: true,
       member: {
