@@ -6,7 +6,6 @@ export default async function handler(req, res) {
 
   const { username, password } = req.body;
 
-  // 管理員帳號密碼
   const ADMIN_USERNAME = 'admin';
   const ADMIN_PASSWORD = 'aaaa';
 
