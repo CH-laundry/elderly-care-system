@@ -79,7 +79,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #FFE5EC 0%, #FFC9D9 100%)' }}>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #FFE5EC 0%, #FFC9D9 100%) !important', minHeight: '100vh' }}>
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-pink-700 mb-2">新會員註冊</h1>
