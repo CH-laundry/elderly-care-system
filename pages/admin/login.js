@@ -29,8 +29,8 @@ export default function AdminLoginPage() {
         if (typeof window !== "undefined") {
           localStorage.setItem("adminLoggedIn", "1");
         }
-        // 先直接導到會員儀表板，看得到畫面就好
-        router.push("/member/dashboard");
+         // ✅ 改成導到管理者後台
+          router.push('/admin/dashboard');
       }
     } catch (err) {
       console.error(err);
