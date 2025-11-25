@@ -67,11 +67,9 @@ export default function Register() {
         throw new Error(data.error || '註冊失敗');
       }
 
-      // 註冊成功，儲存登入狀態
       localStorage.setItem('memberPhone', form.phone);
       localStorage.setItem('memberName', form.name);
 
-      // 跳轉到會員首頁
       router.push('/member/dashboard');
     } catch (err) {
       setError(err.message);
@@ -126,7 +124,7 @@ export default function Register() {
                 placeholder="09xxxxxxxx"
                 maxLength="10"
               />
-              <p className="text-xs text-gray-500 mt-1">系統會自動移除非數字字元</p>
+              <p className="text-xs text-gray-500 mt-1">請輸入10碼手機號碼</p>
             </div>
 
             <div>
@@ -142,7 +140,7 @@ export default function Register() {
                 placeholder="至少 4 個字元"
                 minLength="4"
               />
-              <p className="text-xs text-gray-500 mt-1">至少4個字元</p>
+              <p className="text-xs text-gray-500 mt-1">密碼至少4個字元</p>
             </div>
 
             <div>
@@ -157,7 +155,7 @@ export default function Register() {
                 className="w-full rounded-xl border border-pink-200 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-pink-300"
                 placeholder="再次輸入密碼"
               />
-              <p className="text-xs text-gray-500 mt-1">請再次輸入密碼以確認</p>
+              <p className="text-xs text-gray-500 mt-1">請再次輸入密碼確認</p>
             </div>
 
             {error && (
@@ -183,10 +181,7 @@ export default function Register() {
           </div>
 
           <div className="mt-4 text-center">
-            <Link
-              href="/"
-              className="text-sm text-pink-600 hover:underline"
-            >
+            <Link href="/" className="text-sm text-pink-600 hover:underline">
               ← 回首頁
             </Link>
           </div>
