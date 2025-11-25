@@ -12,7 +12,8 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: linear-gradient(to bottom, #fff5f8, #ffeef4);
+  /* 移除全域背景,讓每個頁面自己控制 */
+  /* background: linear-gradient(to bottom, #fff5f8, #ffeef4); */
   color: #333333;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     "PingFang TC", "Microsoft JhengHei", sans-serif;
