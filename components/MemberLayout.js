@@ -1,36 +1,54 @@
 // components/MemberLayout.js
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 const MENU_ITEMS = [
-  { key: 'dashboard', label: '會員總覽', icon: '👤', href: '/member/dashboard' },
-  { key: 'booking', label: '預約服務', icon: '📅', href: '/member/booking' },
-  { key: 'transactions', label: '消費紀錄', icon: '📜', href: '/member/transactions' },
-  // 先暫時都導到 dashboard，之後要切獨立頁再改 href
-  { key: 'balance', label: '儲值金', icon: '💰', href: '/member/dashboard' },
-  { key: 'points', label: '點數', icon: '⭐', href: '/member/dashboard' },
+  { key: "dashboard", label: "會員總覽", icon: "👤", href: "/member/dashboard" },
+  { key: "booking", label: "預約服務", icon: "📅", href: "/member/booking" },
+  { key: "transactions", label: "消費紀錄", icon: "📜", href: "/member/transactions" },
+  { key: "balance", label: "儲值金", icon: "💰", href: "/member/dashboard?tab=balance" },
+  { key: "points", label: "點數", icon: "⭐", href: "/member/dashboard?tab=points" },
 ];
 
 export default function MemberLayout({ children }) {
   const router = useRouter();
+  const [activeKey, setActiveKey] = useState("dashboard");
 
-  // 會員身份檢查：沒有 memberPhone 就丟回登入頁
+  // 會員檢查：沒有 memberPhone 就導回登入頁
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const phone = localStorage.getItem('memberPhone');
-    if (!phone && router.pathname.startsWith('/member')) {
-      router.push('/login');
+    if (typeof window === "undefined") return;
+    const phone = localStorage.getItem("memberPhone");
+    if (!phone && router.pathname.startsWith("/member")) {
+      router.replace("/login");
     }
   }, [router]);
 
-  const currentPath = router.pathname;
+  // 根據路徑 & tab 決定哪個選單亮起來
+  useEffect(() => {
+    const path = router.pathname;
+    const tab = router.query?.tab;
+
+    if (path.startsWith("/member/booking")) {
+      setActiveKey("booking");
+    } else if (path.startsWith("/member/transactions")) {
+      setActiveKey("transactions");
+    } else if (path.startsWith("/member/dashboard")) {
+      if (tab === "balance") setActiveKey("balance");
+      else if (tab === "points") setActiveKey("points");
+      else setActiveKey("dashboard");
+    }
+  }, [router.pathname, router.query?.tab]);
 
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('memberPhone');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("memberPhone");
     }
-    router.push('/login');
+    router.push("/login");
+  };
+
+  const handleMenuClick = (item) => {
+    setActiveKey(item.key);
+    router.push(item.href);
   };
 
   return (
@@ -63,18 +81,18 @@ export default function MemberLayout({ children }) {
           <nav className="md:sticky md:top-6">
             <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
               {MENU_ITEMS.map((item) => {
-                const active = currentPath.startsWith(item.href);
+                const active = activeKey === item.key;
                 return (
                   <button
                     key={item.key}
                     type="button"
-                    onClick={() => router.push(item.href)}
+                    onClick={() => handleMenuClick(item)}
                     className={
-                      'flex items-center gap-3 rounded-2xl px-4 py-3 ' +
-                      'text-sm md:text-base font-medium shadow-sm border transition ' +
+                      "flex items-center gap-3 rounded-2xl px-4 py-3 " +
+                      "text-sm md:text-base font-medium shadow-sm border transition " +
                       (active
-                        ? 'bg-pink-500 text-white border-pink-500 shadow-md'
-                        : 'bg-white/90 text-pink-800 border-pink-100 hover:bg-pink-50 hover:border-pink-300')
+                        ? "bg-pink-500 text-white border-pink-500 shadow-md"
+                        : "bg-white/90 text-pink-800 border-pink-100 hover:bg-pink-50 hover:border-pink-300")
                     }
                   >
                     <span className="text-xl md:text-2xl">{item.icon}</span>
