@@ -191,22 +191,41 @@ export default function MemberBooking() {
 
             <div>
               <label className="block text-sm font-medium text-pink-900 mb-2">
-                服務類型
+                服務類型 *
               </label>
-              <select
-                name="serviceType"
-                value={form.serviceType}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-pink-200 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-pink-300"
-              >
-                <option value="">請選擇</option>
-                <option value="到府陪伴">到府陪伴</option>
-                <option value="醫院陪同">醫院陪同</option>
-                <option value="復健協助">復健協助</option>
-                <option value="家務整理">家務整理</option>
-                <option value="其他">其他</option>
-              </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { value: '到府陪伴', label: '到府陪伴', desc: '到家陪伴、聊天、協助日常活動' },
+                  { value: '醫院陪同', label: '醫院陪同', desc: '門診、住院、回診之陪同服務' },
+                  { value: '復健協助', label: '復健協助', desc: '復健過程中的陪同與安全看顧' },
+                  { value: '家務整理', label: '家務整理', desc: '簡單打掃、整理環境與陪伴' },
+                  { value: '其他', label: '其他', desc: '客製化需求，可在下方備註說明' },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() =>
+                      setForm((prev) => ({ ...prev, serviceType: item.value }))
+                    }
+                    className={
+                      'text-left w-full rounded-2xl border-2 p-4 transition shadow-sm ' +
+                      (form.serviceType === item.value
+                        ? 'border-pink-500 bg-pink-50 text-pink-800'
+                        : 'border-pink-100 bg-white hover:border-pink-300 hover:bg-pink-50')
+                    }
+                  >
+                    <div className="font-semibold mb-1">{item.label}</div>
+                    <div className="text-xs text-pink-700/80">{item.desc}</div>
+                  </button>
+                ))}
+              </div>
+              {!form.serviceType && (
+                <p className="text-xs text-pink-400 mt-1">
+                  請點選上方其中一項服務類型
+                </p>
+              )}
             </div>
+
 
             <div>
               <label className="block text-sm font-medium text-pink-900 mb-2">
