@@ -1,10 +1,10 @@
-// pages/index.js - 首頁（粉紅卡片＋服務流程＋管理者登入）
-import Link from 'next/link';
+// pages/index.js － 首頁封面（還原你原本那個版面）
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-[#f7f7fb]">
-      {/* 上方導航 */}
+      {/* 上方導航列 */}
       <header className="w-full bg-white shadow-sm">
         <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="text-pink-700 font-bold text-lg">
@@ -30,7 +30,7 @@ export default function Home() {
       {/* 主要內容 */}
       <main className="flex-1 px-4 py-8">
         <div className="max-w-5xl mx-auto space-y-10">
-          {/* 標題區 */}
+          {/* 大標題區塊 */}
           <section className="text-center space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold text-pink-700">
               享老安心照護系統
@@ -43,7 +43,7 @@ export default function Home() {
             </p>
           </section>
 
-          {/* 三個卡片區塊 */}
+          {/* 三張功能卡片 */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-3xl shadow-lg p-6">
               <div className="text-5xl mb-4">🏡</div>
@@ -156,7 +156,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 底部管理者登入 */}
+          {/* 底部管理者登入連結 */}
           <section className="text-center pt-4 pb-6">
             <Link
               href="/admin/login"
