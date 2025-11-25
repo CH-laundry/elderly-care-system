@@ -17,7 +17,7 @@ export default function Register() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'phone') {
-      const digits = value.replace(/[^\d]/g, '').slice(0, 15);
+      const digits = value.replace(/[^\d]/g, '').slice(0, 10);
       setForm(prev => ({ ...prev, phone: digits }));
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
@@ -28,7 +28,7 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
-    if (!form.name || !form.phone || !form.password) {
+    if (!form.name || !form.phone || !form.password || !form.confirmPassword) {
       setError('請填寫所有欄位');
       return;
     }
@@ -40,6 +40,11 @@ export default function Register() {
 
     if (form.password.length < 4) {
       setError('密碼至少需要 4 個字元');
+      return;
+    }
+
+    if (form.phone.length !== 10) {
+      setError('請輸入正確的 10 碼手機號碼');
       return;
     }
 
@@ -76,18 +81,26 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #FFE5EC 0%, #FFC9D9 100%)' }}>
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-pink-700 mb-2">新會員註冊</h1>
-          <p className="text-pink-600">加入享老安心照護系統</p>
+          <p className="text-pink-600">加入樂老安心照護系統</p>
         </div>
 
         <div className="bg-white/90 rounded-3xl shadow-xl p-8">
+          <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded">
+            <p className="text-sm text-green-700 font-medium mb-2">🎯 溫馨提示:</p>
+            <ul className="text-xs text-green-600 space-y-1">
+              <li>• 請輸入真實資料,方便後續服務聯繫</li>
+              <li>• 手機號碼將用於服務通知</li>
+            </ul>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-pink-900 mb-2">
-                姓名 *
+                姓名 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -101,7 +114,7 @@ export default function Register() {
 
             <div>
               <label className="block text-sm font-medium text-pink-900 mb-2">
-                手機號碼 *
+                手機號碼 <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
@@ -111,12 +124,14 @@ export default function Register() {
                 onChange={handleChange}
                 className="w-full rounded-xl border border-pink-200 px-4 py-3 text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-pink-300"
                 placeholder="09xxxxxxxx"
+                maxLength="10"
               />
+              <p className="text-xs text-gray-500 mt-1">系統會自動移除非數字字元</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-pink-900 mb-2">
-                設定密碼 *
+                設定密碼 <span className="text-red-500">*</span>
               </label>
               <input
                 type="password"
@@ -125,12 +140,14 @@ export default function Register() {
                 onChange={handleChange}
                 className="w-full rounded-xl border border-pink-200 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-pink-300"
                 placeholder="至少 4 個字元"
+                minLength="4"
               />
+              <p className="text-xs text-gray-500 mt-1">至少4個字元</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-pink-900 mb-2">
-                確認密碼 *
+                確認密碼 <span className="text-red-500">*</span>
               </label>
               <input
                 type="password"
@@ -140,6 +157,7 @@ export default function Register() {
                 className="w-full rounded-xl border border-pink-200 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-pink-300"
                 placeholder="再次輸入密碼"
               />
+              <p className="text-xs text-gray-500 mt-1">請再次輸入密碼以確認</p>
             </div>
 
             {error && (
