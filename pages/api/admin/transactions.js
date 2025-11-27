@@ -8,9 +8,15 @@ export default async function handler(req, res) {
 
   try {
     const transactions = await getAllTransactions();
-    return res.status(200).json({ success: true, transactions });
+    return res.status(200).json({
+      success: true,
+      transactions,
+    });
   } catch (err) {
     console.error('admin/transactions error:', err);
-    return res.status(500).json({ error: '取得儲值／消費紀錄失敗' });
+    return res.status(500).json({
+      success: false,
+      error: '取得儲值／消費紀錄失敗',
+    });
   }
 }
