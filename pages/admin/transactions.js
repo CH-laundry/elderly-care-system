@@ -6,47 +6,28 @@ export default function AdminTransactions() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, 儲值, 消費, 預約, 調整
-  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchTransactions();
   }, []);
 
   const fetchTransactions = async () => {
-    setLoading(true);
-    setError('');
     try {
       const res = await fetch('/api/admin/transactions');
-
-      // 如果 API 回傳未登入、沒有權限之類，這裡先擋住，不要讓程式爆掉
-      if (!res.ok) {
-        console.error('取得交易紀錄失敗，狀態碼：', res.status);
-        // 不在這裡 redirect，避免你說的「被丟回登入頁」
-        // 只是在畫面上顯示錯誤
-        setError('無法取得交易紀錄，請確認是否已登入管理者帳號。');
-        setTransactions([]);
-        return;
-      }
-
       const data = await res.json();
-      if (Array.isArray(data.transactions)) {
+      if (data.transactions) {
         setTransactions(data.transactions);
-      } else {
-        setTransactions([]);
       }
-    } catch (err) {
-      console.error('fetchTransactions error:', err);
-      setError('載入交易紀錄時發生錯誤。');
-      setTransactions([]);
+    } catch (error) {
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredTransactions =
-    filter === 'all'
-      ? transactions
-      : transactions.filter((t) => t.Type === filter);
+  const filteredTransactions = filter === 'all'
+    ? transactions
+    : transactions.filter(t => t.Type === filter);
 
   const getTypeColor = (type) => {
     switch (type) {
@@ -81,12 +62,9 @@ export default function AdminTransactions() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* 標題 + 篩選器 */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-2xl font-bold text-pink-700">
-            儲值金／消費紀錄
-          </h1>
-
+          <h1 className="text-2xl font-bold text-pink-700">儲值金／消費紀錄</h1>
+          
           {/* 篩選器 */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             {['all', '儲值', '消費', '預約', '調整'].map((type) => (
@@ -102,7 +80,7 @@ export default function AdminTransactions() {
                 {type === 'all' ? '全部' : type}
                 {type !== 'all' && (
                   <span className="ml-1">
-                    ({transactions.filter((t) => t.Type === type).length})
+                    ({transactions.filter(t => t.Type === type).length})
                   </span>
                 )}
               </button>
@@ -110,14 +88,6 @@ export default function AdminTransactions() {
           </div>
         </div>
 
-        {/* 錯誤訊息 */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm">
-            {error}
-          </div>
-        )}
-
-        {/* 內容區 */}
         {loading ? (
           <div className="text-center py-12">
             <div className="text-pink-600">載入中...</div>
@@ -125,9 +95,7 @@ export default function AdminTransactions() {
         ) : filteredTransactions.length === 0 ? (
           <div className="bg-white/90 rounded-2xl shadow-lg p-8 text-center">
             <div className="text-6xl mb-4">💰</div>
-            <p className="text-pink-700">
-              {error ? '目前無法顯示交易紀錄' : '沒有交易紀錄'}
-            </p>
+            <p className="text-pink-700">沒有交易紀錄</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -141,21 +109,15 @@ export default function AdminTransactions() {
                     <div className="text-3xl">{getTypeIcon(txn.Type)}</div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${getTypeColor(
-                            txn.Type
-                          )}`}
-                        >
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getTypeColor(txn.Type)}`}>
                           {txn.Type}
                         </span>
-                          <span className="text-sm font-semibold text-pink-900">
+                        <span className="text-sm font-semibold text-pink-900">
                           {txn.Phone}
                         </span>
                       </div>
                       {txn.Note && (
-                        <div className="text-sm text-pink-700">
-                          {txn.Note}
-                        </div>
+                        <div className="text-sm text-pink-700">{txn.Note}</div>
                       )}
                       <div className="text-xs text-pink-500 mt-1">
                         {txn.CreatedAt
@@ -165,13 +127,9 @@ export default function AdminTransactions() {
                       </div>
                     </div>
                   </div>
-                  <div
-                    className={`text-xl font-bold text-right ${
-                      (txn.Amount || 0) >= 0
-                        ? 'text-green-700'
-                        : 'text-red-700'
-                    }`}
-                  >
+                  <div className={`text-xl font-bold text-right ${
+                    (txn.Amount || 0) >= 0 ? 'text-green-700' : 'text-red-700'
+                  }`}>
                     {(txn.Amount || 0) >= 0 ? '+' : ''}
                     {typeof txn.Amount === 'number'
                       ? txn.Amount.toLocaleString()
