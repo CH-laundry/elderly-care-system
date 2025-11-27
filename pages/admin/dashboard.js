@@ -1,178 +1,91 @@
 // pages/admin/dashboard.js
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const flag = localStorage.getItem("adminLoggedIn");
-    if (!flag) {
-      router.replace("/admin/login");
-    } else {
-      setReady(true);
+    if (typeof window !== 'undefined') {
+      const loggedIn = localStorage.getItem('adminLoggedIn');
+      if (!loggedIn) {
+        router.replace('/admin/login');
+      }
     }
   }, [router]);
 
-  if (!ready) {
-    return null;
-  }
-
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: "24px",
-        background:
-          "linear-gradient(to bottom, #ffe4ef 0%, #ffeef5 40%, #ffffff 100%)",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "960px",
-          margin: "0 auto",
-          backgroundColor: "rgba(255,255,255,0.96)",
-          borderRadius: "24px",
-          padding: "24px 20px 32px",
-          boxShadow:
-            "0 15px 35px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,192,203,0.5)",
-        }}
-      >
-        <header
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "20px",
-          }}
-        >
-          <div>
-            <div
-              style={{
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "#be123c",
-              }}
-            >
-              管理者後台
-            </div>
-            <div
-              style={{
-                fontSize: "13px",
-                color: "#9f1239",
-                marginTop: "4px",
-              }}
-            >
-              目前版本僅提供預約與會員資料檢視，之後可再擴充。
-            </div>
+    <div className="min-h-screen bg-gradient-to-b from-pink-50 via-white to-rose-50 flex flex-col">
+      <header className="w-full bg-white/80 border-b border-pink-100 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+          <div className="text-pink-700 font-bold text-lg">
+            管理者後台｜長輩照護系統
           </div>
           <button
             onClick={() => {
-              if (typeof window !== "undefined") {
-                localStorage.removeItem("adminLoggedIn");
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('adminLoggedIn');
               }
-              router.push("/");
+              router.push('/');
             }}
-            style={{
-              padding: "8px 16px",
-              borderRadius: "999px",
-              border: "none",
-              backgroundColor: "#fb7185",
-              color: "#fff",
-              fontSize: "13px",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
+            className="px-4 py-2 rounded-full text-sm font-semibold border border-pink-300 text-pink-700 bg-pink-50 hover:bg-pink-100"
           >
             登出
           </button>
-        </header>
-
-        <div
-          style={{
-            display: "grid",
-            gap: "16px",
-            gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
-            marginBottom: "16px",
-          }}
-        >
-          <div
-            style={{
-              borderRadius: "18px",
-              padding: "16px",
-              backgroundColor: "#fef2f2",
-              border: "1px solid #fecaca",
-            }}
-          >
-            <div style={{ fontSize: "13px", color: "#b91c1c" }}>
-              今日預約概況
-            </div>
-            <div
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                marginTop: "8px",
-                color: "#7f1d1d",
-              }}
-            >
-              --
-            </div>
-            <div
-              style={{
-                fontSize: "12px",
-                color: "#9f1239",
-                marginTop: "4px",
-              }}
-            >
-              之後可以接 API 顯示實際預約數量
-            </div>
-          </div>
-
-          <div
-            style={{
-              borderRadius: "18px",
-              padding: "16px",
-              backgroundColor: "#eff6ff",
-              border: "1px solid #bfdbfe",
-            }}
-          >
-            <div style={{ fontSize: "13px", color: "#1d4ed8" }}>
-              會員數量
-            </div>
-            <div
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                marginTop: "8px",
-                color: "#1e3a8a",
-              }}
-            >
-              --
-            </div>
-            <div
-              style={{
-                fontSize: "12px",
-                color: "#1d4ed8",
-                marginTop: "4px",
-              }}
-            >
-              未來可以串 Airtable 顯示會員總數
-            </div>
-          </div>
         </div>
+      </header>
 
-        <div
-          style={{
-            marginTop: "12px",
-            fontSize: "13px",
-            color: "#6b7280",
-          }}
-        >
-          ⬆ 目前只是簡易版後台，主要是讓「管理者登入流程」先走得通，不會被會員登入規則擋住。
+      <main className="flex-1 px-4 py-8">
+        <div className="max-w-6xl mx-auto space-y-8">
+          <section className="text-center space-y-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-pink-700">
+              管理者總覽
+            </h1>
+            <p className="text-pink-500 text-sm md:text-base">
+              可查看所有會員資料、儲值金／點數與預約紀錄
+            </p>
+          </section>
+
+          {/* 功能選單卡片 */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <button
+              onClick={() => router.push('/admin/members')}
+              className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-100 hover:border-pink-300 hover:shadow-xl transition-all"
+            >
+              <div className="text-4xl mb-3">👥</div>
+              <h3 className="text-lg font-bold text-pink-900 mb-2">
+                會員基本資料
+              </h3>
+              <p className="text-sm text-pink-700 leading-relaxed">
+                檢視所有會員的電話、姓名、儲值金、點數等資料，並可點選查看個人詳細紀錄。
+              </p>
+            </button>
+
+            <button
+              onClick={() => router.push('/admin/bookings')}
+              className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-100 hover:border-pink-300 hover:shadow-xl transition-all"
+            >
+              <div className="text-4xl mb-3">📅</div>
+              <h3 className="text-lg font-bold text-pink-900 mb-2">
+                會員預約資料
+              </h3>
+              <p className="text-sm text-pink-700 leading-relaxed">
+                以時間排序查看所有預約紀錄，掌握當日與未來預約狀況。
+              </p>
+            </button>
+
+            <div className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-100 opacity-70">
+              <div className="text-4xl mb-3">💳</div>
+              <h3 className="text-lg font-bold text-pink-900 mb-2">
+                消費與儲值紀錄（預留）
+              </h3>
+              <p className="text-sm text-pink-700 leading-relaxed">
+                未來可擴充為查看每位會員的消費紀錄與儲值紀錄報表。
+              </p>
+            </div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
