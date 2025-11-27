@@ -5,107 +5,108 @@ import { useRouter } from 'next/router';
 export default function AdminDashboard() {
   const router = useRouter();
 
+  // 登入狀態檢查（只在瀏覽器端跑）
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const loggedIn = localStorage.getItem('adminLoggedIn');
-      if (!loggedIn) {
-        router.replace('/admin/login');
-      }
+    if (typeof window === 'undefined') return;
+
+    const loggedIn = localStorage.getItem('adminLoggedIn');
+    if (loggedIn !== 'true') {
+      router.replace('/admin/login');
     }
   }, [router]);
 
+  const goTo = (path) => {
+    router.push(path);
+  };
+
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('adminLoggedIn');
+    }
+    router.replace('/admin/login');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 via-white to-rose-50 flex flex-col">
-      {/* 頂部列 */}
-      <header className="w-full bg-white/80 border-b border-pink-100 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-          <div className="text-pink-700 font-bold text-lg">
-            管理者後台｜長輩照護系統
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-pink-100">
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        {/* 頁首 */}
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+          <div>
+            <p className="text-sm text-pink-300 mb-1">
+              管理者後台 | 長輩照護系統
+            </p>
+            <h1 className="text-3xl font-bold text-pink-200">管理者總覽</h1>
+            <p className="text-sm text-pink-300 mt-1">
+              可查看所有會員資料、儲值金／點數、預約紀錄與交易紀錄。
+            </p>
           </div>
           <button
-            onClick={() => {
-              if (typeof window !== 'undefined') {
-                localStorage.removeItem('adminLoggedIn');
-              }
-              router.push('/');
-            }}
-            className="px-4 py-2 rounded-full text-sm font-semibold border border-pink-300 text-pink-700 bg-pink-50 hover:bg-pink-100"
+            onClick={handleLogout}
+            className="self-start md:self-auto px-6 py-2 rounded-full border border-pink-400 text-pink-100 hover:bg-pink-600/20 text-sm transition"
           >
             登出
           </button>
-        </div>
-      </header>
+        </header>
 
-      {/* 主要內容 */}
-      <main className="flex-1 px-4 py-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* 標題區 */}
-          <section className="text-center space-y-2">
-            <h1 className="text-2xl md:text-3xl font-bold text-pink-700">
-              管理者總覽
-            </h1>
-            <p className="text-pink-500 text-sm md:text-base">
-              可查看所有會員資料、儲值金／點數與預約、交易紀錄。
+        {/* 功能卡片 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* 會員基本資料 */}
+          <button
+            type="button"
+            onClick={() => goTo('/admin/members')}
+            className="group bg-gray-900/70 border border-pink-500/60 rounded-2xl p-6 text-left hover:border-pink-300 hover:bg-gray-900/90 transition"
+          >
+            <div className="text-3xl mb-2">👥</div>
+            <h2 className="text-xl font-semibold text-pink-100 mb-1">
+              會員基本資料
+            </h2>
+            <p className="text-sm text-pink-200">
+              檢視所有會員電話、姓名、儲值金與點數，並可查看詳細資料與歷史紀錄。
             </p>
-          </section>
+          </button>
 
-          {/* 功能選單：三顆大卡片 + 預留位 */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* 會員基本資料 */}
-            <button
-              onClick={() => router.push('/admin/members')}
-              className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-100 hover:border-pink-300 hover:shadow-xl transition-all"
-            >
-              <div className="text-4xl mb-3">👥</div>
-              <h3 className="text-lg font-bold text-pink-900 mb-2">
-                會員基本資料
-              </h3>
-              <p className="text-sm text-pink-700 leading-relaxed">
-                檢視所有會員電話、姓名、儲值金與點數，點選個別會員可查看詳細資料與歷史預約紀錄。
-              </p>
-            </button>
+          {/* 會員預約資料 */}
+          <button
+            type="button"
+            onClick={() => goTo('/admin/bookings')}
+            className="group bg-gray-900/70 border border-pink-500/60 rounded-2xl p-6 text-left hover:border-pink-300 hover:bg-gray-900/90 transition"
+          >
+            <div className="text-3xl mb-2">📅</div>
+            <h2 className="text-xl font-semibold text-pink-100 mb-1">
+              會員預約資料
+            </h2>
+            <p className="text-sm text-pink-200">
+              按日期查看所有預約紀錄，掌握每日與未來時段預約量，方便安排人力。
+            </p>
+          </button>
 
-            {/* 會員預約資料 */}
-            <button
-              onClick={() => router.push('/admin/bookings')}
-              className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-100 hover:border-pink-300 hover:shadow-xl transition-all"
-            >
-              <div className="text-4xl mb-3">📅</div>
-              <h3 className="text-lg font-bold text-pink-900 mb-2">
-                會員預約資料
-              </h3>
-              <p className="text-sm text-pink-700 leading-relaxed">
-                按日期查看所有預約紀錄，掌握每日與未來預約量，方便安排人力。
-              </p>
-            </button>
+          {/* 儲值金／消費紀錄報表 */}
+          <button
+            type="button"
+            onClick={() => goTo('/admin/transactions')}
+            className="group bg-gray-900/70 border border-pink-500/60 rounded-2xl p-6 text-left hover:border-pink-300 hover:bg-gray-900/90 transition"
+          >
+            <div className="text-3xl mb-2">💳</div>
+            <h2 className="text-xl font-semibold text-pink-100 mb-1">
+              儲值金／消費紀錄報表
+            </h2>
+            <p className="text-sm text-pink-200">
+              查詢每一筆儲值與扣款紀錄，追蹤金額、付款方式與經手人，方便帳務對帳。
+            </p>
+          </button>
 
-            {/* 儲值金／消費紀錄報表 */}
-            <button
-              onClick={() => router.push('/admin/transactions')}
-              className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-100 hover:border-pink-300 hover:shadow-xl transition-all"
-            >
-              <div className="text-4xl mb-3">💳</div>
-              <h3 className="text-lg font-bold text-pink-900 mb-2">
-                儲值金／消費紀錄報表
-              </h3>
-              <p className="text-sm text-pink-700 leading-relaxed">
-                查看每一筆儲值與扣款紀錄，支援依類型篩選，方便對帳與處理爭議。
-              </p>
-            </button>
-
-            {/* 預留功能位 */}
-            <div className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-50 opacity-75">
-              <div className="text-4xl mb-3">📊</div>
-              <h3 className="text-lg font-bold text-pink-900 mb-2">
-                統計報表（預留）
-              </h3>
-              <p className="text-sm text-pink-700 leading-relaxed">
-                未來可擴充為每月營收、會員成長、服務別使用量等視覺化圖表。
-              </p>
-            </div>
-          </section>
+          {/* 統計報表預留位 */}
+          <div className="bg-gray-900/40 border border-pink-500/40 rounded-2xl p-6">
+            <div className="text-3xl mb-2">📊</div>
+            <h2 className="text-xl font-semibold text-pink-100 mb-1">
+              統計報表（預留）
+            </h2>
+            <p className="text-sm text-pink-200">
+              未來可新增每月營收、會員成長、服務別使用量等視覺化圖表。
+            </p>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
