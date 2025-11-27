@@ -49,7 +49,7 @@ export default function AdminDashboard() {
             </p>
           </section>
 
-          {/* 功能選單：四顆大卡片 */}
+          {/* 功能選單：三顆大卡片 + 預留位 */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* 會員基本資料 */}
             <button
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
                 會員基本資料
               </h3>
               <p className="text-sm text-pink-700 leading-relaxed">
-                檢視所有會員的電話、姓名、儲值金與點數，點選個別會員可查看詳細資料與歷史預約紀錄。
+                檢視所有會員電話、姓名、儲值金與點數，點選個別會員可查看詳細資料與歷史預約紀錄。
               </p>
             </button>
 
@@ -75,11 +75,11 @@ export default function AdminDashboard() {
                 會員預約資料
               </h3>
               <p className="text-sm text-pink-700 leading-relaxed">
-                以時間排序查看所有預約紀錄，掌握每日與未來預約量，方便安排人力。
+                按日期查看所有預約紀錄，掌握每日與未來預約量，方便安排人力。
               </p>
             </button>
 
-            {/* 儲值金 / 消費紀錄報表 */}
+            {/* 儲值金／消費紀錄報表 */}
             <button
               onClick={() => router.push('/admin/transactions')}
               className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-100 hover:border-pink-300 hover:shadow-xl transition-all"
@@ -89,12 +89,12 @@ export default function AdminDashboard() {
                 儲值金／消費紀錄報表
               </h3>
               <p className="text-sm text-pink-700 leading-relaxed">
-                查看每一筆儲值與扣款紀錄，支援依「儲值／消費」篩選，方便對帳與查詢爭議。
+                查看每一筆儲值與扣款紀錄，支援依類型篩選，方便對帳與處理爭議。
               </p>
             </button>
 
-            {/* 預留功能位（未來可再設計） */}
-            <div className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-50 opacity-70">
+            {/* 預留功能位 */}
+            <div className="bg-white rounded-3xl shadow-lg p-6 text-left border border-pink-50 opacity-75">
               <div className="text-4xl mb-3">📊</div>
               <h3 className="text-lg font-bold text-pink-900 mb-2">
                 統計報表（預留）
