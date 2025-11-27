@@ -63,7 +63,7 @@ export default function AdminTransactions() {
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-2xl font-bold text-pink-700">消費紀錄</h1>
+          <h1 className="text-2xl font-bold text-pink-700">儲值金／消費紀錄</h1>
           
           {/* 篩選器 */}
           <div className="flex gap-2 overflow-x-auto pb-2">
