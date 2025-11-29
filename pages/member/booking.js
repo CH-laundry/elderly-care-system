@@ -20,7 +20,7 @@ export default function MemberBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 讀 localStorage 的會員登入資訊
+  // 讀會員登入資訊
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const loggedIn = window.localStorage.getItem('memberLoggedIn');
@@ -122,7 +122,7 @@ export default function MemberBookingsPage() {
           <aside className="space-y-2">
             <button
               type="button"
-              onClick={() => router.push('/member')}
+              onClick={() => router.push('/member/dashboard')}
               className="w-full text-left rounded-2xl border border-pink-500/40 px-4 py-3 text-sm bg-gray-950/80 hover:border-pink-300/80"
             >
               會員總覽
