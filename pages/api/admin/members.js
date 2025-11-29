@@ -1,5 +1,5 @@
 // pages/api/admin/members.js
-// 管理者用：讀取 Airtable 會員資料列表
+// 管理者用：讀取 Airtable「會員基本資料」列表，並提供 phone/name 等欄位
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -9,7 +9,9 @@ export default async function handler(req, res) {
   try {
     const apiKey = process.env.AIRTABLE_API_KEY;
     const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = process.env.MEMBERS_TABLE_ID; // 你之前建立的會員表 ID
+    // 你原本用的 MEMBERS_TABLE_ID 直接沿用
+    const tableId =
+      process.env.MEMBERS_TABLE_ID || process.env.MEMBERS_TABLE || '';
 
     if (!apiKey || !baseId || !tableId) {
       return res.status(500).json({
@@ -20,7 +22,7 @@ export default async function handler(req, res) {
 
     const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(
       tableId
-    )}?maxRecords=100&view=Grid%20view&sort[0][field]=手機&sort[0][direction]=asc`;
+    )}?maxRecords=200`;
 
     const resp = await fetch(url, {
       headers: {
@@ -36,21 +38,36 @@ export default async function handler(req, res) {
 
     const data = await resp.json();
 
-    const records = (data.records || []).map((r) => ({
-      id: r.id,
-      // 這裡用多種欄位名做 fallback，避免欄位叫「姓名」或「會員姓名」之類就抓不到
-      name:
-        r.fields['姓名'] ||
-        r.fields['會員姓名'] ||
-        r.fields['暱稱'] ||
-        r.fields['Name'] ||
-        '',
-      phone: r.fields['手機'] || '',
-      birthday: r.fields['生日'] || '',
-      address: r.fields['地址'] || '',
-      note: r.fields['備註'] || '',
-      createdTime: r.createdTime,
-    }));
+    const records = (data.records || []).map((r) => {
+      const f = r.fields || {};
+
+      // 儘量多種欄位名稱都 cover 到
+      const name =
+        f['姓名'] ||
+        f['會員姓名'] ||
+        f['姓名／暱稱'] ||
+        f['Name'] ||
+        f['姓名(必填)'] ||
+        '';
+
+      const phone =
+        f['手機'] ||
+        f['手機號碼'] ||
+        f['電話'] ||
+        f['Phone'] ||
+        f['聯絡電話'] ||
+        '';
+
+      return {
+        id: r.id,
+        name,
+        phone,
+        birthday: f['生日'] || f['Birth'] || '',
+        address: f['地址'] || f['住址'] || '',
+        note: f['備註'] || f['備註/說明'] || '',
+        createdTime: r.createdTime,
+      };
+    });
 
     return res.status(200).json({ records });
   } catch (err) {
