@@ -1,5 +1,5 @@
 // pages/api/admin/bookings.js
-// 管理者用：讀取 Airtable 預約紀錄，回傳簡化資料給前端
+// 管理者用：讀取 Airtable 預約紀錄資料
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -17,7 +17,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // 一次抓最多 100 筆最新預約，依日期+時間排序
     const url = new URL(`https://api.airtable.com/v0/${baseId}/${tableId}`);
     url.searchParams.set('pageSize', '100');
     url.searchParams.set('sort[0][field]', '預約日期');
@@ -37,7 +36,6 @@ export default async function handler(req, res) {
 
     const data = await airtableResp.json();
 
-    // 清洗成前端好用的格式
     const records = (data.records || []).map((r) => ({
       id: r.id,
       phone: r.fields['手機'] || '',
