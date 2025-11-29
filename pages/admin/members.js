@@ -4,235 +4,129 @@ import { useRouter } from 'next/router';
 
 export default function AdminMembersPage() {
   const router = useRouter();
-  const [members, setMembers] = useState([]);
-  const [selectedMember, setSelectedMember] = useState(null);
-  const [memberBookings, setMemberBookings] = useState([]);
-  const [loadingMembers, setLoadingMembers] = useState(true);
-  const [loadingBookings, setLoadingBookings] = useState(false);
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 管理者權限檢查
+  // 登入檢查
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const loggedIn = localStorage.getItem('adminLoggedIn');
-      if (!loggedIn) {
-        router.replace('/admin/login');
-      }
-    }
+    if (typeof window === 'undefined') return;
+    const loggedIn = window.localStorage.getItem('adminLoggedIn');
+    if (!loggedIn) router.replace('/admin/login');
   }, [router]);
 
-  // 載入所有會員
+  // 抓會員資料
   useEffect(() => {
-    async function fetchMembers() {
-      setLoadingMembers(true);
-      setError('');
+    const fetchData = async () => {
       try {
+        setLoading(true);
+        setError('');
         const resp = await fetch('/api/admin/members');
         const data = await resp.json();
-        if (!resp.ok || !data.success) {
-          setError(data.error || '讀取會員資料失敗');
+
+        if (!resp.ok) {
+          setError(data.error || '讀取會員資料失敗。');
+          setRecords([]);
         } else {
-          setMembers(data.members || []);
+          setRecords(data.records || []);
         }
       } catch (err) {
         console.error(err);
-        setError('系統錯誤，無法取得會員資料');
+        setError('系統錯誤，請稍後再試。');
+        setRecords([]);
       } finally {
-        setLoadingMembers(false);
+        setLoading(false);
       }
-    }
-    fetchMembers();
+    };
+
+    fetchData();
   }, []);
 
-  // 點選會員後載入他的預約紀錄
-  async function handleSelectMember(member) {
-    setSelectedMember(member);
-    setMemberBookings([]);
-    if (!member.phone) return;
-
-    setLoadingBookings(true);
-    try {
-      const resp = await fetch(
-        `/api/admin/member-bookings?phone=${encodeURIComponent(member.phone)}`
-      );
-      const data = await resp.json();
-      if (!resp.ok || !data.success) {
-        setError(data.error || '讀取會員預約紀錄失敗');
-      } else {
-        setMemberBookings(data.bookings || []);
-      }
-    } catch (err) {
-      console.error(err);
-      setError('系統錯誤，無法取得會員預約紀錄');
-    } finally {
-      setLoadingBookings(false);
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 via-white to-rose-50 flex flex-col">
-      <header className="w-full bg-white/80 border-b border-pink-100 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-950 to-black text-white flex flex-col">
+      <header className="w-full border-b border-pink-500/40 bg-gray-950/80 backdrop-blur">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
-          <div className="text-pink-700 font-bold text-lg">
-            管理者後台｜會員基本資料
+          <div className="flex flex-col">
+            <span className="text-xs text-pink-300/80">EnjoyCare Admin</span>
+            <span className="text-lg font-bold text-pink-100">
+              會員基本資料
+            </span>
           </div>
           <button
             onClick={() => router.push('/admin/dashboard')}
-            className="px-3 py-1.5 rounded-full text-xs md:text-sm font-semibold border border-pink-300 text-pink-700 bg-pink-50 hover:bg-pink-100"
+            className="px-3 py-1.5 rounded-full text-xs font-semibold bg-pink-500 text-white hover:bg-pink-400 shadow-lg shadow-pink-500/30"
           >
-            回管理者首頁
+            返回管理總覽
           </button>
         </div>
       </header>
 
-      <main className="flex-1 px-4 py-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 左側：會員列表 */}
-          <section className="bg-white rounded-3xl shadow-lg border border-pink-100 p-4 md:p-6">
-            <h2 className="text-lg font-bold text-pink-900 mb-4">
-              會員列表
-            </h2>
-
-            {loadingMembers && (
-              <p className="text-sm text-pink-600">載入中…</p>
-            )}
+      <main className="flex-1 w-full">
+        <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+          <section className="rounded-3xl bg-gray-950/80 border border-pink-500/40 p-4 md:p-5 shadow-xl shadow-pink-500/30">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base md:text-lg font-semibold text-pink-100">
+                會員列表
+              </h2>
+              {loading && (
+                <span className="text-[11px] text-pink-200/80">讀取中…</span>
+              )}
+            </div>
 
             {error && (
-              <p className="text-sm text-red-500 mb-2">{error}</p>
+              <div className="mb-3 text-xs text-red-300 bg-red-900/40 border border-red-700/60 rounded-2xl px-3 py-2">
+                {error}
+              </div>
             )}
 
-            <div className="border border-pink-100 rounded-2xl overflow-hidden">
-              <div className="grid grid-cols-4 bg-pink-50 text-pink-800 text-xs md:text-sm font-semibold px-3 py-2">
-                <div>姓名</div>
-                <div>電話</div>
-                <div className="text-right">儲值金</div>
-                <div className="text-right">點數</div>
-              </div>
-              <div className="max-h-[420px] overflow-y-auto">
-                {members.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => handleSelectMember(m)}
-                    className={`w-full grid grid-cols-4 items-center px-3 py-2 text-xs md:text-sm border-t border-pink-50 hover:bg-pink-50 text-left ${
-                      selectedMember && selectedMember.id === m.id
-                        ? 'bg-pink-50'
-                        : 'bg-white'
-                    }`}
-                  >
-                    <div className="truncate">{m.name || '—'}</div>
-                    <div className="truncate">{m.phone || '—'}</div>
-                    <div className="text-right">
-                      {m.balance ?? 0}
-                    </div>
-                    <div className="text-right">
-                      {m.points ?? 0}
-                    </div>
-                  </button>
-                ))}
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-xs md:text-sm">
+                <thead>
+                  <tr className="border-b border-pink-500/30 text-pink-200">
+                    <th className="text-left py-2 pr-3">姓名</th>
+                    <th className="text-left py-2 pr-3">手機</th>
+                    <th className="text-left py-2 pr-3">生日</th>
+                    <th className="text-left py-2 pr-3">地址</th>
+                    <th className="text-left py-2 pr-3">備註</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {records.length === 0 && !loading && (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="py-6 text-center text-xs text-pink-200/80"
+                      >
+                        尚無會員資料。
+                      </td>
+                    </tr>
+                  )}
 
-                {members.length === 0 && !loadingMembers && (
-                  <div className="px-3 py-4 text-center text-xs text-pink-500">
-                    目前尚無會員資料
-                  </div>
-                )}
-              </div>
+                  {records.map((r) => (
+                    <tr
+                      key={r.id}
+                      className="border-b border-pink-500/10 hover:bg-gray-900/60"
+                    >
+                      <td className="py-2 pr-3 text-pink-50">
+                        {r.name || '—'}
+                      </td>
+                      <td className="py-2 pr-3 text-pink-100/90">
+                        {r.phone || '—'}
+                      </td>
+                      <td className="py-2 pr-3 text-pink-100/90">
+                        {r.birthday || '—'}
+                      </td>
+                      <td className="py-2 pr-3 text-pink-100/90">
+                        {r.address || '—'}
+                      </td>
+                      <td className="py-2 pr-3 text-pink-100/80">
+                        {r.note || '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </section>
-
-          {/* 右側：選取會員的詳細資料＋預約紀錄 */}
-          <section className="bg-white rounded-3xl shadow-lg border border-pink-100 p-4 md:p-6">
-            <h2 className="text-lg font-bold text-pink-900 mb-4">
-              會員詳情與預約紀錄
-            </h2>
-
-            {!selectedMember && (
-              <p className="text-sm text-pink-500">
-                請先從左側點選一位會員，即可查看其基本資料與歷史預約紀錄。
-              </p>
-            )}
-
-            {selectedMember && (
-              <div className="space-y-4">
-                <div className="bg-pink-50 rounded-2xl p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="font-semibold text-pink-900">
-                      {selectedMember.name || '—'}
-                    </div>
-                    <div className="text-xs text-pink-500">
-                      會員電話：{selectedMember.phone || '—'}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-sm text-pink-800">
-                    <div>
-                      <div className="text-xs text-pink-500 mb-1">
-                        儲值金
-                      </div>
-                      <div className="font-semibold">
-                        ${selectedMember.balance ?? 0}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-pink-500 mb-1">
-                        點數
-                      </div>
-                      <div className="font-semibold">
-                        {selectedMember.points ?? 0} 點
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-pink-900">
-                      歷史預約紀錄
-                    </h3>
-                    {loadingBookings && (
-                      <span className="text-xs text-pink-500">
-                        載入中…
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="border border-pink-100 rounded-2xl overflow-hidden">
-                    <div className="grid grid-cols-4 bg-pink-50 text-pink-800 text-xs font-semibold px-3 py-2">
-                      <div>日期</div>
-                      <div>時間</div>
-                      <div>服務類型</div>
-                      <div>備註 / 狀態</div>
-                    </div>
-                    <div className="max-h-[320px] overflow-y-auto">
-                      {memberBookings.map((b) => (
-                        <div
-                          key={b.id}
-                          className="grid grid-cols-4 text-xs px-3 py-2 border-t border-pink-50"
-                        >
-                          <div className="truncate">
-                            {b.date || '—'}
-                          </div>
-                          <div className="truncate">
-                            {b.time || '—'}
-                          </div>
-                          <div className="truncate">
-                            {b.serviceType || '—'}
-                          </div>
-                          <div className="truncate">
-                            {b.status || b.note || '—'}
-                          </div>
-                        </div>
-                      ))}
-
-                      {memberBookings.length === 0 &&
-                        !loadingBookings && (
-                          <div className="px-3 py-3 text-center text-xs text-pink-500">
-                            尚無預約紀錄
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </section>
         </div>
       </main>
