@@ -8,14 +8,13 @@ export default function AdminMembersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 登入檢查
+  // 簡單的登入檢查（沿用你原本的 localStorage key）
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const loggedIn = window.localStorage.getItem('adminLoggedIn');
     if (!loggedIn) router.replace('/admin/login');
   }, [router]);
 
-  // 抓會員資料
   useEffect(() => {
     const fetchData = async () => {
       try {
