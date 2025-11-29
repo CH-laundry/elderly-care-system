@@ -19,7 +19,6 @@ export default function AdminBookingsPage() {
   const [records, setRecords] = useState([]);
   const [error, setError] = useState('');
 
-  // 權限檢查：沒登入就退回 /admin/login
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const loggedIn = window.localStorage.getItem('adminLoggedIn');
@@ -53,7 +52,6 @@ export default function AdminBookingsPage() {
     fetchData();
   }, []);
 
-  // 統計邏輯
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -75,7 +73,6 @@ export default function AdminBookingsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-950 to-black text-white flex flex-col">
-      {/* 頂部列 */}
       <header className="w-full border-b border-pink-500/40 bg-gray-950/80 backdrop-blur">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex flex-col">
@@ -93,10 +90,8 @@ export default function AdminBookingsPage() {
         </div>
       </header>
 
-      {/* 主內容 */}
       <main className="flex-1 w-full">
         <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-          {/* 統計卡片 */}
           <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-3xl bg-gray-950/80 border border-pink-500/50 p-4">
               <div className="text-xs text-pink-200/80 mb-1">今日預約數</div>
@@ -127,14 +122,12 @@ export default function AdminBookingsPage() {
             </div>
           </section>
 
-          {/* 錯誤訊息 */}
           {error && (
             <div className="rounded-2xl border border-red-500/60 bg-red-900/40 px-4 py-3 text-xs text-red-50">
               {error}
             </div>
           )}
 
-          {/* 預約列表 */}
           <section className="rounded-3xl bg-gray-950/80 border border-pink-500/40 p-4 md:p-5">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base md:text-lg font-semibold text-pink-100">
@@ -200,7 +193,6 @@ export default function AdminBookingsPage() {
         </div>
       </main>
 
-      {/* 背景裝飾 */}
       <div className="pointer-events-none fixed inset-0 opacity-40">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-pink-700/30 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-fuchsia-700/30 rounded-full blur-3xl" />
