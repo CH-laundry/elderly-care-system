@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   try {
     const apiKey = process.env.AIRTABLE_API_KEY;
     const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = process.env.BOOKINGS_TABLE_ID;
+    const tableId = process.env.BOOKINGS_TABLE_ID; // 跟後台預約表同一張
 
     if (!apiKey || !baseId || !tableId) {
       return res.status(500).json({
