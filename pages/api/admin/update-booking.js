@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   try {
     const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${BOOKINGS_TABLE_ID}/${bookingId}`;
-    
+
     const res2 = await fetch(url, {
       method: 'PATCH',
       headers: {
@@ -25,12 +25,15 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         fields: {
-          Status: status,
+          // 要跟 Airtable 表格裡的欄位名稱一致：中文「狀態」
+          狀態: status,
         },
       }),
     });
 
     if (!res2.ok) {
+      const text = await res2.text();
+      console.error('Update booking Airtable error:', res2.status, text);
       throw new Error('更新失敗');
     }
 
