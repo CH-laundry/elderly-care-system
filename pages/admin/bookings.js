@@ -85,11 +85,15 @@ export default function AdminBookingsPage() {
     });
   }, [records, memberMap]);
 
-  const nextStatus = (current) => {
-    if (current === '待確認') return '已確認';
-    if (current === '已確認') return '已完成';
-    return '已完成';
-  };
+  // 讓狀態循環：待確認 → 已確認 → 已完成 → 待確認
+const nextStatus = (current) => {
+  const c = current || '待確認';
+  if (c === '待確認') return '已確認';
+  if (c === '已確認') return '已完成';
+  if (c === '已完成') return '待確認';
+  return '待確認';
+};
+
 
   const renderStatusChip = (status) => {
     let color =
