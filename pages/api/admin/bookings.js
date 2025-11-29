@@ -1,5 +1,5 @@
 // pages/api/admin/bookings.js
-import { getAllBookings } from '../../../lib/airtable';
+// 管理者用：讀取 Airtable 預約紀錄，回傳簡化資料給前端
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -7,10 +7,53 @@ export default async function handler(req, res) {
   }
 
   try {
-    const bookings = await getAllBookings();
-    return res.status(200).json({ success: true, bookings });
+    const apiKey = process.env.AIRTABLE_API_KEY;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const tableId = process.env.BOOKINGS_TABLE_ID;
+
+    if (!apiKey || !baseId || !tableId) {
+      return res.status(500).json({
+        error: 'Airtable 參數未設定完整（AIRTABLE_API_KEY / AIRTABLE_BASE_ID / BOOKINGS_TABLE_ID）。',
+      });
+    }
+
+    // 一次抓最多 100 筆最新預約，依日期+時間排序
+    const url = new URL(`https://api.airtable.com/v0/${baseId}/${tableId}`);
+    url.searchParams.set('pageSize', '100');
+    url.searchParams.set('sort[0][field]', '預約日期');
+    url.searchParams.set('sort[0][direction]', 'desc');
+
+    const airtableResp = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+
+    if (!airtableResp.ok) {
+      const text = await airtableResp.text();
+      console.error('Admin bookings Airtable error:', airtableResp.status, text);
+      return res.status(500).json({ error: '讀取預約紀錄失敗。' });
+    }
+
+    const data = await airtableResp.json();
+
+    // 清洗成前端好用的格式
+    const records = (data.records || []).map((r) => ({
+      id: r.id,
+      phone: r.fields['手機'] || '',
+      date: r.fields['預約日期'] || '',
+      time: r.fields['預約時間'] || '',
+      serviceType: r.fields['服務類型'] || '',
+      attendant: r.fields['指定陪伴員'] || '',
+      status: r.fields['狀態'] || '',
+      notes: r.fields['備註'] || '',
+      source: r.fields['建立來源'] || '',
+      createdTime: r.createdTime,
+    }));
+
+    return res.status(200).json({ records });
   } catch (err) {
-    console.error('admin/bookings error:', err);
-    return res.status(500).json({ error: '取得預約資料失敗' });
+    console.error('Admin bookings API error:', err);
+    return res.status(500).json({ error: '系統錯誤，請稍後再試。' });
   }
 }
