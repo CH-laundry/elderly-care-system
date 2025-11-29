@@ -3,31 +3,11 @@ import { useState } from "react";
 import MemberLayout from "../../components/MemberLayout";
 
 const SERVICE_OPTIONS = [
-  {
-    value: "到府陪伴",
-    label: "到府陪伴",
-    desc: "到家陪伴、聊天、協助日常活動",
-  },
-  {
-    value: "醫院陪同",
-    label: "醫院陪同",
-    desc: "門診、住院、回診之陪同服務",
-  },
-  {
-    value: "復健協助",
-    label: "復健協助",
-    desc: "復健過程中的陪同與安全看顧",
-  },
-  {
-    value: "家務整理",
-    label: "家務整理",
-    desc: "簡單打掃、整理環境與陪伴",
-  },
-  {
-    value: "其他",
-    label: "其他",
-    desc: "客製化需求，可在下方備註說明",
-  },
+  { value: "到府陪伴", label: "到府陪伴", desc: "到家陪伴、聊天、協助日常活動" },
+  { value: "醫院陪同", label: "醫院陪同", desc: "門診、住院、回診之陪同服務" },
+  { value: "復健協助", label: "復健協助", desc: "復健過程中的陪同與安全看顧" },
+  { value: "家務整理", label: "家務整理", desc: "簡單打掃、整理環境與陪伴" },
+  { value: "其他", label: "其他", desc: "客製化需求，可在下方備註說明" },
 ];
 
 export default function MemberBooking() {
@@ -55,10 +35,14 @@ export default function MemberBooking() {
       return;
     }
 
-    // 從登入流程記錄的 localStorage 取得手機
+    // 從登入流程記錄的 localStorage 取得手機（多種 key 都試）
     let phone = "";
     if (typeof window !== "undefined") {
-      phone = window.localStorage.getItem("memberPhone") || "";
+      phone =
+        window.localStorage.getItem("memberPhone") ||
+        window.localStorage.getItem("phone") ||
+        window.localStorage.getItem("userPhone") ||
+        "";
     }
 
     if (!phone) {
@@ -73,7 +57,7 @@ export default function MemberBooking() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          phone, // ✅ 不再讓客戶輸入，直接帶登入手機
+          phone,
         }),
       });
 
@@ -103,7 +87,6 @@ export default function MemberBooking() {
   return (
     <MemberLayout>
       <div className="w-full max-w-4xl mx-auto space-y-6">
-        {/* 頁面標題 + 簡介 */}
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-bold text-pink-50">開始預約</h2>
           <p className="text-xs text-pink-200">
@@ -111,24 +94,10 @@ export default function MemberBooking() {
           </p>
         </div>
 
-        {/* 儲值金 / 點數簡單顯示（之後可串 API） */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-pink-500/40 bg-pink-900/30 p-3">
-            <div className="text-xs text-pink-100/80 mb-1">儲值金</div>
-            <div className="text-2xl font-bold text-pink-50">$0</div>
-          </div>
-          <div className="rounded-2xl border border-pink-500/40 bg-pink-900/30 p-3">
-            <div className="text-xs text-pink-100/80 mb-1">點數</div>
-            <div className="text-2xl font-bold text-pink-50">0</div>
-          </div>
-        </div>
-
-        {/* 預約表單 */}
         <form
           onSubmit={handleSubmit}
           className="space-y-4 bg-gray-950/40 border border-pink-500/30 rounded-3xl p-4 md:p-6 shadow-xl"
         >
-          {/* 日期 */}
           <div>
             <label className="block text-sm font-medium text-pink-100 mb-1">
               預約日期 *
@@ -142,7 +111,6 @@ export default function MemberBooking() {
             />
           </div>
 
-          {/* 時間 */}
           <div>
             <label className="block text-sm font-medium text-pink-100 mb-1">
               預約時間（05:00 ~ 22:00） *
@@ -158,7 +126,6 @@ export default function MemberBooking() {
             />
           </div>
 
-          {/* 指定陪伴員（可選） */}
           <div>
             <label className="block text-sm font-medium text-pink-100 mb-1">
               預約陪伴員（可不選）
@@ -175,7 +142,6 @@ export default function MemberBooking() {
             </select>
           </div>
 
-          {/* 服務類型：長方形卡片（你要的樣式） */}
           <div>
             <label className="block text-sm font-medium text-pink-100 mb-2">
               服務類型 *
@@ -211,7 +177,6 @@ export default function MemberBooking() {
             </div>
           </div>
 
-          {/* 備註 */}
           <div>
             <label className="block text-sm font-medium text-pink-100 mb-1">
               備註 / 特殊需求
@@ -226,14 +191,12 @@ export default function MemberBooking() {
             />
           </div>
 
-          {/* 訊息提示 */}
           {message && (
             <p className="text-xs text-pink-200 bg-pink-900/40 border border-pink-500/40 rounded-xl px-3 py-2">
               {message}
             </p>
           )}
 
-          {/* 送出按鈕 */}
           <button
             type="submit"
             disabled={submitting}
