@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     // 2) Airtable 環境變數
     const apiKey = process.env.AIRTABLE_API_KEY;
     const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = process.env.BOOKINGS_TABLE_ID; // 「預約紀錄」那張表的 tblXXXX
+    const tableId = process.env.BOOKINGS_TABLE_ID; // 「預約紀錄」表的 tblXXXX
 
     if (!apiKey || !baseId || !tableId) {
       console.error('Airtable env missing', {
@@ -30,11 +30,12 @@ export default async function handler(req, res) {
         hasTable: !!tableId,
       });
       return res.status(500).json({
-        error: '伺服器尚未設定完整的 Airtable 參數（AIRTABLE_API_KEY / AIRTABLE_BASE_ID / BOOKINGS_TABLE_ID）。',
+        error:
+          '伺服器尚未設定完整的 Airtable 參數（AIRTABLE_API_KEY / AIRTABLE_BASE_ID / BOOKINGS_TABLE_ID）。',
       });
     }
 
-    // 3) 寫入欄位（請確保 Airtable 欄位名稱有這幾個）
+    // 3) 寫入欄位（請確認 Airtable 欄位名稱）
     const fields = {
       手機: phone,
       預約日期: date,
@@ -48,7 +49,7 @@ export default async function handler(req, res) {
 
     // 4) 呼叫 Airtable API
     const airtableResp = await fetch(
-      `https://api.airtable.com/v0/${baseId}/${tableId}`,
+      `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableId)}`,
       {
         method: 'POST',
         headers: {
@@ -60,9 +61,18 @@ export default async function handler(req, res) {
     );
 
     if (!airtableResp.ok) {
-      const text = await airtableResp.text();
-      console.error('Airtable booking error:', airtableResp.status, text);
-      return res.status(500).json({ error: '預約寫入資料庫失敗，請稍後再試。' });
+      let msg = '預約寫入資料庫失敗，請稍後再試。';
+      try {
+        const errJson = await airtableResp.json();
+        if (errJson?.error?.message) {
+          msg = `預約失敗：${errJson.error.message}`;
+        }
+        console.error('Airtable booking error:', errJson);
+      } catch (e) {
+        const text = await airtableResp.text().catch(() => '');
+        console.error('Airtable booking raw error:', text);
+      }
+      return res.status(500).json({ error: msg });
     }
 
     const data = await airtableResp.json();
