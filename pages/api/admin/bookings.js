@@ -1,5 +1,5 @@
 // pages/api/admin/bookings.js
-// 管理者用：讀取 Airtable 預約紀錄資料
+// 管理者用：讀取 Airtable 預約紀錄資料（後台報表）
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -13,16 +13,16 @@ export default async function handler(req, res) {
 
     if (!apiKey || !baseId || !tableId) {
       return res.status(500).json({
-        error: 'Airtable 參數未設定完整（AIRTABLE_API_KEY / AIRTABLE_BASE_ID / BOOKINGS_TABLE_ID）。',
+        error:
+          'Airtable 參數未設定完整（AIRTABLE_API_KEY / AIRTABLE_BASE_ID / BOOKINGS_TABLE_ID）。',
       });
     }
 
-    const url = new URL(`https://api.airtable.com/v0/${baseId}/${tableId}`);
-    url.searchParams.set('pageSize', '100');
-    url.searchParams.set('sort[0][field]', '預約日期');
-    url.searchParams.set('sort[0][direction]', 'desc');
+    const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(
+      tableId
+    )}?maxRecords=100&view=Grid%20view&sort[0][field]=預約日期&sort[0][direction]=asc`;
 
-    const airtableResp = await fetch(url.toString(), {
+    const airtableResp = await fetch(url, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
       },
@@ -39,6 +39,8 @@ export default async function handler(req, res) {
     const records = (data.records || []).map((r) => ({
       id: r.id,
       phone: r.fields['手機'] || '',
+      // 之後你在 Airtable 新增「姓名」或「會員姓名 / 暱稱」，這裡會自動帶出
+      name: r.fields['姓名'] || r.fields['會員姓名'] || r.fields['暱稱'] || '',
       date: r.fields['預約日期'] || '',
       time: r.fields['預約時間'] || '',
       serviceType: r.fields['服務類型'] || '',
