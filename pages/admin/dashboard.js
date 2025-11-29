@@ -1,23 +1,23 @@
 // pages/admin/dashboard.js
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const loggedIn = window.localStorage.getItem("adminLoggedIn");
+    if (typeof window === 'undefined') return;
+    const loggedIn = window.localStorage.getItem('adminLoggedIn');
     if (!loggedIn) {
-      router.replace("/admin/login");
+      router.replace('/admin/login');
     }
   }, [router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-950 to-black text-white flex flex-col">
-      {/* 上方列 */}
+      {/* 上方標題列 */}
       <header className="w-full border-b border-pink-500/40 bg-gray-950/80 backdrop-blur">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+        <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex flex-col">
             <span className="text-xs text-pink-300/80">EnjoyCare Admin</span>
             <span className="text-lg font-bold text-pink-100">
@@ -25,11 +25,12 @@ export default function AdminDashboard() {
             </span>
           </div>
           <button
+            type="button"
             onClick={() => {
-              if (typeof window !== "undefined") {
-                window.localStorage.removeItem("adminLoggedIn");
+              if (typeof window !== 'undefined') {
+                window.localStorage.removeItem('adminLoggedIn');
               }
-              router.replace("/admin/login");
+              router.replace('/admin/login');
             }}
             className="px-3 py-1.5 rounded-full text-xs font-semibold bg-pink-500 text-white hover:bg-pink-400 shadow-lg shadow-pink-500/30"
           >
@@ -51,8 +52,12 @@ export default function AdminDashboard() {
           </section>
 
           <section className="space-y-4">
-            {/* 1. 會員基本資料（保留卡片，不導頁） */}
-            <div className="rounded-3xl bg-gray-950/80 border border-pink-500/40 px-4 py-4 md:px-6 md:py-5">
+            {/* 1. 會員基本資料 → /admin/members */}
+            <button
+              type="button"
+              onClick={() => router.push('/admin/members')}
+              className="w-full text-left rounded-3xl bg-gray-950/80 border border-pink-500/40 px-4 py-4 md:px-6 md:py-5 hover:border-pink-300/80 transition shadow-lg shadow-pink-500/20"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-pink-600 flex items-center justify-center text-2xl">
                   👤
@@ -66,13 +71,13 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* 2. 會員預約資料 → /admin/bookings */}
             <button
               type="button"
-              onClick={() => router.push("/admin/bookings")}
-              className="w-full text-left rounded-3xl bg-gray-950/80 border border-pink-500/60 px-4 py-4 md:px-6 md:py-5 hover:bg-gray-900/80 hover:border-pink-300/80 transition shadow-lg shadow-pink-500/20"
+              onClick={() => router.push('/admin/bookings')}
+              className="w-full text-left rounded-3xl bg-gray-950/80 border border-pink-500/40 px-4 py-4 md:px-6 md:py-5 hover:border-pink-300/80 transition shadow-lg shadow-pink-500/20"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-pink-500 flex items-center justify-center text-2xl">
@@ -89,11 +94,15 @@ export default function AdminDashboard() {
               </div>
             </button>
 
-            {/* 3. 儲值金 / 消費紀錄（先純展示） */}
-            <div className="rounded-3xl bg-gray-950/80 border border-pink-500/40 px-4 py-4 md:px-6 md:py-5">
+            {/* 3. 儲值金 / 消費紀錄 → /admin/transactions */}
+            <button
+              type="button"
+              onClick={() => router.push('/admin/transactions')}
+              className="w-full text-left rounded-3xl bg-gray-950/80 border border-pink-500/40 px-4 py-4 md:px-6 md:py-5 hover:border-pink-300/80 transition shadow-lg shadow-pink-500/20"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-pink-600 flex items-center justify-center text-2xl">
-                  📊
+                  💰
                 </div>
                 <div className="flex-1">
                   <div className="text-base md:text-lg font-semibold text-pink-50">
@@ -104,7 +113,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
 
             {/* 4. 線上儲值管理（未來串金流） */}
             <div className="rounded-3xl bg-gray-950/80 border border-pink-500/40 px-4 py-4 md:px-6 md:py-5">
