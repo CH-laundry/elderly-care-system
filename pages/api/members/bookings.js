@@ -6,16 +6,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { phone } = req.query;
+  const rawPhone = (req.query.phone || '').toString();
 
-  if (!phone) {
+  if (!rawPhone) {
     return res.status(400).json({ error: '缺少手機號碼' });
   }
 
   try {
     const apiKey = process.env.AIRTABLE_API_KEY;
     const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = process.env.BOOKINGS_TABLE_ID; // 跟後台預約表同一張
+    const tableId = process.env.BOOKINGS_TABLE_ID; // 跟後台同一張預約表
 
     if (!apiKey || !baseId || !tableId) {
       return res.status(500).json({
@@ -24,7 +24,12 @@ export default async function handler(req, res) {
       });
     }
 
-    const filterFormula = `{手機} = '${phone}'`;
+    // 將傳進來的手機內容變成「只有數字」
+    const digitsOnly = rawPhone.replace(/\D/g, '');
+
+    // 在 Airtable 端也把 {手機} 去掉 - 和空白，再跟 digitsOnly 比對
+    const filterFormula = `SUBSTITUTE(SUBSTITUTE({手機}, "-", ""), " ", "") = '${digitsOnly}'`;
+
     const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(
       tableId
     )}?maxRecords=50&view=Grid%20view&filterByFormula=${encodeURIComponent(
