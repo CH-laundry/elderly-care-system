@@ -1,5 +1,5 @@
 // pages/api/bookings.js
-// 會員預約 API：直接寫入 Airtable「預約紀錄」表
+// 會員預約 API：寫入 Airtable「預約紀錄」表
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,10 +18,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '找不到會員手機，請先重新登入後再預約。' });
     }
 
-    // 2) 讀取 Airtable 環境變數
+    // 2) Airtable 環境變數
     const apiKey = process.env.AIRTABLE_API_KEY;
     const baseId = process.env.AIRTABLE_BASE_ID;
-    const tableId = process.env.BOOKINGS_TABLE_ID; // 你之前已經設定過的 tblXXXXXXXX
+    const tableId = process.env.BOOKINGS_TABLE_ID; // 「預約紀錄」那張表的 tblXXXX
 
     if (!apiKey || !baseId || !tableId) {
       console.error('Airtable env missing', {
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 3) 準備寫入欄位（欄位名稱你可以照抄去 Airtable 建欄位）
+    // 3) 寫入欄位（請確保 Airtable 欄位名稱有這幾個）
     const fields = {
       手機: phone,
       預約日期: date,
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       建立來源: '官網預約',
     };
 
-    // 4) 呼叫 Airtable REST API，直接寫入預約紀錄表
+    // 4) 呼叫 Airtable API
     const airtableResp = await fetch(
       `https://api.airtable.com/v0/${baseId}/${tableId}`,
       {
@@ -55,7 +55,6 @@ export default async function handler(req, res) {
           Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-          // 注意：Airtable 會自動建立不存在的欄位，所以欄位名稱打對就好
         body: JSON.stringify({ fields }),
       }
     );
