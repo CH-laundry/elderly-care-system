@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 const MENU_ITEMS = [
   { key: "dashboard", label: "會員總覽", icon: "👤", href: "/member/dashboard" },
   { key: "booking", label: "預約服務", icon: "📅", href: "/member/booking" },
+  { key: "bookings", label: "預約紀錄", icon: "📂", href: "/member/bookings" },
   { key: "transactions", label: "消費紀錄", icon: "📜", href: "/member/transactions" },
   { key: "balance", label: "儲值金", icon: "💰", href: "/member/dashboard?tab=balance" },
   { key: "points", label: "點數", icon: "⭐", href: "/member/dashboard?tab=points" },
@@ -14,7 +15,7 @@ export default function MemberLayout({ children }) {
   const router = useRouter();
   const [activeKey, setActiveKey] = useState("dashboard");
 
-  // 會員檢查：沒有 memberPhone 就導回登入頁
+  // 登入檢查：沒有 memberPhone 就導回登入頁
   useEffect(() => {
     if (typeof window === "undefined") return;
     const phone = localStorage.getItem("memberPhone");
@@ -23,12 +24,14 @@ export default function MemberLayout({ children }) {
     }
   }, [router]);
 
-  // 根據路徑 & tab 決定哪個選單亮起來
+  // 根據路徑 & tab 決定左側哪個選單要亮
   useEffect(() => {
     const path = router.pathname;
     const tab = router.query?.tab;
 
-    if (path.startsWith("/member/booking")) {
+    if (path.startsWith("/member/bookings")) {
+      setActiveKey("bookings");
+    } else if (path.startsWith("/member/booking")) {
       setActiveKey("booking");
     } else if (path.startsWith("/member/transactions")) {
       setActiveKey("transactions");
@@ -37,18 +40,18 @@ export default function MemberLayout({ children }) {
       else if (tab === "points") setActiveKey("points");
       else setActiveKey("dashboard");
     }
-  }, [router.pathname, router.query?.tab]);
+  }, [router.pathname, router.query]);
+
+  const handleMenuClick = (item) => {
+    router.push(item.href);
+  };
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("memberPhone");
+      localStorage.removeItem("memberName");
     }
     router.push("/login");
-  };
-
-  const handleMenuClick = (item) => {
-    setActiveKey(item.key);
-    router.push(item.href);
   };
 
   return (
@@ -67,17 +70,14 @@ export default function MemberLayout({ children }) {
           <button
             type="button"
             onClick={handleLogout}
-            className="px-4 py-2 rounded-full text-xs md:text-sm font-semibold
-                       bg-white/90 text-pink-700 border border-pink-200
-                       hover:bg-pink-50 hover:border-pink-400 shadow-sm"
+            className="px-4 py-2 rounded-full text-xs md:text-sm font-semibold bg-white/90 text-pink-700 border border-pink-200 hover:bg-pink-50 hover:border-pink-400 shadow-sm"
           >
             登出
           </button>
         </header>
 
-        {/* 左側選單 + 右側內容 */}
         <div className="grid md:grid-cols-[260px,1fr] gap-6 items-start">
-          {/* 功能選單：大方塊樣式 */}
+          {/* 左側選單 */}
           <nav className="md:sticky md:top-6">
             <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
               {MENU_ITEMS.map((item) => {
@@ -88,8 +88,7 @@ export default function MemberLayout({ children }) {
                     type="button"
                     onClick={() => handleMenuClick(item)}
                     className={
-                      "flex items-center gap-3 rounded-2xl px-4 py-3 " +
-                      "text-sm md:text-base font-medium shadow-sm border transition " +
+                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm md:text-base font-medium shadow-sm border transition " +
                       (active
                         ? "bg-pink-500 text-white border-pink-500 shadow-md"
                         : "bg-white/90 text-pink-800 border-pink-100 hover:bg-pink-50 hover:border-pink-300")
@@ -103,7 +102,7 @@ export default function MemberLayout({ children }) {
             </div>
           </nav>
 
-          {/* 右側主內容卡片 */}
+          {/* 右側主要內容 */}
           <main className="bg-white/95 rounded-3xl shadow-xl p-4 md:p-8 border border-pink-100">
             {children}
           </main>
