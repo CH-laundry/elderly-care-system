@@ -1,112 +1,114 @@
 // pages/member/transactions.js
-import { useState, useEffect } from 'react';
+
 import { useRouter } from 'next/router';
-import MemberLayout from '../../components/MemberLayout';
 
-export default function MemberTransactions() {
+export default function MemberTransactionsPage() {
   const router = useRouter();
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const phone = localStorage.getItem('memberPhone');
-    if (!phone) {
-      router.push('/login');
-      return;
-    }
-
-    fetchTransactions(phone);
-  }, [router]);
-
-  const fetchTransactions = async (phone) => {
-    try {
-      const res = await fetch(`/api/transactions/list?phone=${phone}`);
-      const data = await res.json();
-      if (data.transactions) {
-        setTransactions(data.transactions);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getTypeColor = (type) => {
-    switch (type) {
-      case '儲值':
-        return 'text-green-700';
-      case '消費':
-      case '預約':
-        return 'text-red-700';
-      default:
-        return 'text-pink-700';
-    }
-  };
-
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case '儲值':
-        return '💰';
-      case '消費':
-        return '🛒';
-      case '預約':
-        return '📅';
-      default:
-        return '💳';
-    }
-  };
 
   return (
-    <MemberLayout>
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-pink-700 mb-6">消費紀錄</h1>
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-pink-50">
+      <header className="border-b border-pink-500/20 bg-black/40 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <div>
+            <p className="text-xs text-pink-300/80">EnjoyCare Member</p>
+            <h1 className="text-lg font-semibold tracking-wide">
+              長輩專屬會員專區
+            </h1>
+            <p className="mt-1 text-xs text-pink-200/70">
+              可查看預約、消費紀錄、儲值與點數資訊
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push('/member/login')}
+            className="rounded-full bg-pink-500 px-4 py-1.5 text-xs font-semibold text-white shadow-md shadow-pink-500/40 hover:bg-pink-400"
+          >
+            登出
+          </button>
+        </div>
+      </header>
 
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="text-pink-600">載入中...</div>
+      <main className="mx-auto flex max-w-6xl gap-6 px-4 py-8">
+        {/* 左側選單 */}
+        <aside className="w-52 space-y-3">
+          {/* 會員總覽 */}
+          <button
+            type="button"
+            onClick={() => router.push('/member/dashboard')}
+            className="w-full text-left rounded-2xl border border-pink-500/40 bg-gray-950/80 px-4 py-3 text-sm text-pink-50 hover:border-pink-300/80 hover:text-pink-100"
+          >
+            會員總覽
+          </button>
+
+          {/* 預約服務（填表） */}
+          <button
+            type="button"
+            onClick={() => router.push('/member/booking')}
+            className="w-full text-left rounded-2xl border border-pink-500/40 bg-gray-950/80 px-4 py-3 text-sm text-pink-50 hover:border-pink-300/80 hover:text-pink-100"
+          >
+            預約服務
+          </button>
+
+          {/* ✅ 新增：預約紀錄列表 */}
+          <button
+            type="button"
+            onClick={() => router.push('/member/bookings')}
+            className="w-full text-left rounded-2xl border border-pink-500/40 bg-gray-950/80 px-4 py-3 text-sm text-pink-50 hover:border-pink-300/80 hover:text-pink-100"
+          >
+            預約紀錄
+          </button>
+
+          {/* 消費紀錄（目前頁面，高亮） */}
+          <button
+            type="button"
+            disabled
+            className="w-full cursor-default text-left rounded-2xl border border-pink-400 bg-pink-900/40 px-4 py-3 text-sm font-semibold text-pink-100 shadow-inner shadow-pink-500/30"
+          >
+            消費紀錄
+          </button>
+
+          {/* 儲值金 / 點數：先保留選單，之後再做功能 */}
+          <button
+            type="button"
+            onClick={() => {
+              // 之後有對應頁面再改成 router.push('/member/balance')
+              alert('儲值金功能即將開放');
+            }}
+            className="w-full text-left rounded-2xl border border-pink-500/40 bg-gray-950/80 px-4 py-3 text-sm text-pink-50 hover:border-pink-300/80 hover:text-pink-100"
+          >
+            儲值金
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              // 之後有對應頁面再改成 router.push('/member/points')
+              alert('點數功能即將開放');
+            }}
+            className="w-full text-left rounded-2xl border border-pink-500/40 bg-gray-950/80 px-4 py-3 text-sm text-pink-50 hover:border-pink-300/80 hover:text-pink-100"
+          >
+            點數
+          </button>
+        </aside>
+
+        {/* 右側內容區：消費紀錄 */}
+        <section className="flex-1">
+          <div className="rounded-3xl border border-pink-500/30 bg-gray-950/80 p-6 shadow-[0_0_40px_rgba(236,72,153,0.25)]">
+            <h2 className="text-xl font-semibold text-pink-100">消費紀錄</h2>
+            <p className="mt-1 text-xs text-pink-200/70">
+              目前可查看已完成服務的消費與扣款情況（之後可串接儲值金、點數）。
+            </p>
+
+            {/* 空狀態：暫時先顯示「還沒有交易紀錄」 */}
+            <div className="mt-10 flex flex-col items-center justify-center py-16">
+              <div className="mb-4 text-5xl">💰</div>
+              <p className="text-sm text-pink-100">還沒有交易紀錄</p>
+              <p className="mt-1 text-xs text-pink-200/70">
+                完成預約服務並結帳後，會自動在這裡看到消費明細。
+              </p>
+            </div>
           </div>
-        ) : transactions.length === 0 ? (
-          <div className="bg-white/90 rounded-2xl shadow-lg p-8 text-center">
-            <div className="text-6xl mb-4">💰</div>
-            <p className="text-pink-700">還沒有交易紀錄</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {transactions.map((txn, index) => (
-              <div
-                key={txn.id || index}
-                className="bg-white/90 rounded-2xl shadow-lg p-5 border border-pink-100 hover:shadow-xl transition"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="text-3xl">{getTypeIcon(txn.Type)}</div>
-                    <div>
-                      <div className="font-semibold text-pink-900 mb-1">
-                        {txn.Type}
-                      </div>
-                      {txn.Note && (
-                        <div className="text-sm text-pink-600">{txn.Note}</div>
-                      )}
-                      <div className="text-xs text-pink-500 mt-1">
-                        {txn.CreatedAt
-                          ? new Date(txn.CreatedAt).toLocaleString('zh-TW')
-                          : '-'}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={`text-xl font-bold ${getTypeColor(txn.Type)}`}>
-                    {txn.Amount >= 0 ? '+' : ''}
-                    {typeof txn.Amount === 'number'
-                      ? txn.Amount.toLocaleString()
-                      : txn.Amount}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </MemberLayout>
+        </section>
+      </main>
+    </div>
   );
 }
